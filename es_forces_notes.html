@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>進化戦略と物理の力</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--fg:#1d1d1f;--muted:#5f6368;--bg:#ffffff;--line:#d9dce1;--accent:#2b5fa8;--ok:#1e7a3c;--ng:#b3261e;--warn:#8a5a00;--box:#f5f7fa}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.85;font-size:16px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 16px 4rem}
+h1{font-size:1.6rem;line-height:1.4;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
+h2{font-size:1.2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-top:2.6rem}
+h3{font-size:1.02rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;font-family:"Hiragino Sans","Yu Gothic",sans-serif}
+th,td{border:1px solid var(--line);padding:.35rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--box)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.box{background:var(--box);border-left:3px solid var(--accent);padding:.7rem 1rem;margin:1.2rem 0}
+.warn{border-left-color:var(--warn)}
+.ok{color:var(--ok);font-weight:bold}.ng{color:var(--ng);font-weight:bold}.mid{color:var(--warn);font-weight:bold}
+code{font-family:Consolas,"Courier New",monospace;font-size:.85em;background:var(--box);padding:0 .25em}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+ol.refs{font-size:.88rem}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}table,.box,.katex-display{break-inside:avoid}a{color:inherit;text-decoration:none}}
+@page{size:A4;margin:18mm 16mm}
+</style>
+</head>
+<body>
+<main>
+
+<h1>進化戦略と物理の力 ― 電磁気・強い力・弱い力・中性子の寿命</h1>
+<div class="sub">研究ノート（随時追記） ・ 初版 2026-11-24 ・ 大谷 + Claude ・ 姉妹編：<code>es_physics_notes.html</code>（時空と重力）</div>
+
+<div class="box warn">
+<b>このノートの位置づけ。</b> 姉妹編と同じく探索的な研究メモ。各節で <span class="ok">検証済み</span>／<span class="mid">解釈</span>／<span class="ng">未解決・否定的</span> を区別し、
+実行前に予測を書いてから数値実験を行う。スクリプトは <code>es_physics/scripts/f*.py</code>。
+</div>
+
+<h2>0. 出発点：姉妹編からの引き継ぎ</h2>
+<ul>
+<li>ES = BP（Stein の補題）は、経路空間では Schwinger–Dyson 方程式・確率過程量子化と同じ構造（姉妹編 §2）。<b>\(e^{-S}\) からの集団サンプリング＝ES</b>。</li>
+<li>虚数単位 \(i\) は零和（反対称）結合から現れ、各エージェントの内部の回転構造 \(J\) として存在する（姉妹編 §4–5）。</li>
+<li>重力は「ループを一周したときの<b>時計</b>のずれ」だった（姉妹編 §11–12）。</li>
+</ul>
+<div class="box">
+<b>この編の中心アイデア。</b> 各エージェントは自分の内部の基準（\(J\) の向き＝位相の基準、多成分なら内部のフレーム）を<b>勝手に決めてよい</b>とする。
+すると隣とやり取りするには基準のずれを補正する量がボンドに必要になり、<b>ループを一周したときの内部フレームのずれ</b>がゲージ場の強さ（電場・磁場、グルーオン場）になる。
+重力＝時計のずれ、ゲージ力＝内部フレームのずれ、という対になる。
+数学としては格子ゲージ理論（Wilson 1974）そのもので、新しいのは読み方である。
+</div>
+
+<!-- ============================================================ -->
+<h2>F1. 電磁気力：位相の基準の自由 → 光子（<code>scripts/f1_photon_modes.py</code>）</h2>
+<p>エージェントの状態 \(\psi_i\)（複素 1 成分）に対し \(\psi_i\to e^{i\theta_i}\psi_i\) を各自が勝手に選べるとする。
+やり取り \(\psi_i^*e^{iA_{ij}}\psi_j\) が不変であるためにはボンド変数が \(A_{ij}\to A_{ij}+\theta_i-\theta_j\) と変われば良い。
+基準の選び方によらない量は、ループ（プラケット）を一周した位相の和 \(F\)＝磁束だけ。エネルギー \(\tfrac12\sum F^2\)、運動項 \(\tfrac12\sum\dot A^2\)。</p>
+<p><b>予測：</b> 波数ごとに、横波 2 つ（\(\omega=|k|\)）、縦波 1 つはゲージのゼロモード。ガウス拘束（時間に依存する基準の付け替えへの不変性）で縦波が消え、物理モードは 2 つ。</p>
+<table>
+<tr><th>波数の方向</th><th>\(|k|=0.05\)：\(\omega/|k|\)</th><th>\(|k|=1.5\)</th><th>ゼロモード</th><th>ゼロモードと純ゲージ方向の重なり</th></tr>
+<tr><td>(0,0,1)</td><td class="n">0.9999 ×2</td><td class="n">0.909 ×2</td><td class="n">1</td><td class="n">1.000000</td></tr>
+<tr><td>(1,1,0)</td><td class="n">0.9999 ×2</td><td class="n">0.954 ×2</td><td class="n">1</td><td class="n">1.000000</td></tr>
+<tr><td>(1,2,3)</td><td class="n">0.9999 ×2</td><td class="n">0.954 ×2</td><td class="n">1</td><td class="n">1.000000</td></tr>
+</table>
+<p>ガウス拘束を課すと物理モードは 2 つ、\(\omega/|k|=0.99995\)。<b>光子の 2 偏極がそのまま出た</b>。<span class="ok">予測どおり</span>
+重力（姉妹編 §11：ゲージ 3、拘束後 TT 2）と全く同じ構造である点に注意。</p>
+<p><b>時空のループで数えると（<code>scripts/f1b_photon_4d.py</code>）：</b> 4 次元のプラケットで位相のずれを数えると、2 次形式の固有値は
+すべての方向（時間軸、空間軸、(1,0,0,1)、(1,2,−1,3)）で \(\{0,\ |k|^2\times3\}\)（\(|k|=0.05\) で 0.9998–0.9999）。4 次元で等方なので、Wick 回転後の光子の速さは
+重力波（姉妹編 §12）と同じ \(c\) になる。<span class="ok">予測どおり</span></p>
+
+<!-- ============================================================ -->
+<h2>F2. 強い力：内部フレームが多成分 → 閉じ込め（<code>scripts/f2_confinement.py</code>）</h2>
+<p>エージェントの内部状態が複素 \(N\) 成分なら、各自が選べる基準は \(SU(N)\) の回転。ボンド変数は群の元 \(U_{ij}\)、エネルギーはループを一周したフレームのずれ
+\(S=\beta\sum_P\left(1-\tfrac1N\mathrm{Re\,Tr}\,U_P\right)\)。\(N=3\) が強い力（色）、\(N=2\) はその簡易版。
+この分布 \(e^{-S}\) を、各ボンドがランダムな摂動を試して受け入れる<b>集団的・局所的な更新（Metropolis＝ES 型のサンプリング）</b>で調べた。</p>
+<p>観測量：Wilson ループ \(W(R,T)\)（大きさ \(R\times T\) のループのフレームのずれの平均）。閉じ込めでは面積則 \(W\sim e^{-\sigma RT}\)、Creutz 比 \(\chi(R)=-\ln\frac{W(R,R)W(R-1,R-1)}{W(R,R-1)^2}\) が \(R\) によらず弦張力 \(\sigma\) に近づく。</p>
+<p><b>予測：</b> SU(2) \(\beta=2.3\)：\(\chi(2)\approx\chi(3)>0.1\)（閉じ込め）。U(1) \(\beta=1.5\)：\(\chi<0.05\) で \(R\) とともに減る（閉じ込めない）。U(1) \(\beta=0.8\)：\(\chi\) 大（格子の強結合でのみ起きる既知の人工物）。SU(2) の \(\chi(2)\) は \(\beta\) とともに減る（漸近的自由性）。</p>
+
+<h3>F2.1 予備計算（\(L=8\)、\(R\le3\)、各 1 回）</h3>
+<table>
+<tr><th>群・結合</th><th>プラケット</th><th>\(\chi(2)\)</th><th>\(\chi(3)\)</th></tr>
+<tr><td>SU(2) \(\beta=2.2\)</td><td class="n">0.5685</td><td class="n">0.413</td><td class="n">0.343</td></tr>
+<tr><td>SU(2) \(\beta=2.3\)</td><td class="n">0.6015（文献 0.6024）</td><td class="n">0.327</td><td class="n">0.218</td></tr>
+<tr><td>SU(2) \(\beta=2.4\)</td><td class="n">0.6312</td><td class="n">0.244</td><td class="n">0.129</td></tr>
+<tr><td>SU(2) \(\beta=2.6\)</td><td class="n">0.6697</td><td class="n">0.185</td><td class="n">0.072</td></tr>
+<tr><td>U(1) \(\beta=1.5\)</td><td class="n">0.8126</td><td class="n">0.060</td><td class="n">0.020</td></tr>
+<tr><td>U(1) \(\beta=0.8\)</td><td class="n">0.4019</td><td class="n">0.862</td><td class="n">1.42（ノイズ大）</td></tr>
+</table>
+<ul>
+<li>SU(2) \(\beta=2.3\) のプラケット 0.6015 は文献値 0.6024 と一致し、コードは正しい。</li>
+<li>SU(2) の \(\chi\) は \(\beta\) とともに減少（0.41→0.33→0.24→0.19）：漸近的自由性の方向。<span class="ok">予測どおり</span>（減り方は 1 ループの予測より緩やかで、まだスケーリング領域ではない）</li>
+<li>U(1) \(\beta=1.5\)：\(\chi\) は小さく \(R\) とともに減る。<span class="mid">ほぼ予測どおり</span>（\(\chi(2)=0.060\) は上限 0.05 を少し超えた）</li>
+<li>SU(2) \(\beta=2.3\) の \(\chi(2)\) と \(\chi(3)\) は「ほぼ等しい」と予測したが 0.33 と 0.22。<span class="mid">外れ</span>。小さい \(R\) ではクーロン的な寄与が大きく、\(R\le3\) では面積則を判定できない。</li>
+</ul>
+
+<h3>F2.2 本計算（\(L=12\)、\(R\le5\)、シード 4 つ）</h3>
+<p id="f2-main">ビルドマシンで \(L=12\)、熱化 150 掃引、測定 150 掃引、シード 4 つ。値は平均 ± 標準誤差。</p>
+<table>
+<tr><th>群・結合</th><th>プラケット</th><th>\(\chi(2)\)</th><th>\(\chi(3)\)</th><th>\(\chi(4)\)</th><th>\(\chi(5)\)</th></tr>
+<tr><td>SU(2) \(\beta=2.2\)</td><td class="n">0.569</td><td class="n">0.408 ± 0.002</td><td class="n">0.325 ± 0.003</td><td class="n">0.17 ± 0.05</td><td>ノイズで判定不能</td></tr>
+<tr><td>SU(2) \(\beta=2.4\)</td><td class="n">0.631</td><td class="n">0.248 ± 0.002</td><td class="n">0.138 ± 0.002</td><td class="n"><b>0.091 ± 0.011</b></td><td class="n">0.03 ± 0.03</td></tr>
+<tr><td>U(1) \(\beta=1.5\)</td><td class="n">0.813</td><td class="n">0.061 ± 0.000</td><td class="n">0.021 ± 0.000</td><td class="n"><b>0.0095 ± 0.0004</b></td><td class="n">0.0040 ± 0.0004</td></tr>
+</table>
+<ul>
+<li><b>U(1)（電磁気）：</b> \(\chi(R)\) は 0.061 → 0.021 → 0.0095 → 0.004 と 0 に向かって減り続ける。<b>閉じ込めない（クーロン相）</b>。4 シードでよく揃っている。<span class="ok">予測どおり</span></li>
+<li><b>SU(2)（強い力の簡易版）：</b> \(R=4\) で U(1) の約 10 倍の値に止まりつつある。\(\beta=2.4\) の \(\chi(4)=0.091\) は文献の弦張力 \(\sigma a^2\approx0.07\)（記憶に基づく）に上から近づく値。
+小さい \(R\) の減少はクーロン的な寄与で、大きい \(R\) で正の一定値（面積則＝<b>閉じ込め</b>）に向かう描像と整合する。<span class="ok">傾向は予測どおり</span></li>
+<li><b>限界：</b> \(R\ge4\) では統計誤差が大きく、\(R=5\) は使えない（\(W(5,5)\) がノイズに埋もれる）。弦張力を定量的に出すには、統計を増やすか、リンクの平滑化（これ自体が後述の ES 的な平滑化）が必要。</li>
+<li>予備計算と同じく、\(\chi(2)\approx\chi(3)\) という予測は外れ（小さい \(R\) はクーロン的な寄与が大きい）。</li>
+</ul>
+<div class="box">
+<b>意味。</b> 「内部フレームが 1 成分（位相だけ）」のネットワークでは力は遠くまで届き（電磁気）、「多成分（\(SU(2)\)）」にすると、同じループのずれのエネルギーから<b>引き離せない力（閉じ込め）</b>が現れる。
+違いは内部フレームの回転が可換か非可換かだけ。強い力でクォークが単独で取り出せない理由の、この枠組みでの読み方。数学としては Wilson (1974)・Creutz (1980) 以来の格子ゲージ理論そのもの。
+</div>
+
+<!-- ============================================================ -->
+<h2>F4. ゲージ理論の中の ES = BP：平滑化 = 勾配フロー</h2>
+
+<h3>F4.1 線形理論での一致（<code>scripts/f4a_flow_is_smoothing.py</code>）</h3>
+<p>格子 QCD で物理スケールを決める標準の道具「勾配フロー」（Lüscher 2010）は、作用の勾配降下 \(\dot A=-\partial S/\partial A\)、つまり <b>BP</b> である。
+ES 側は場のガウス平滑化（分散 \(\sigma^2=2t\) の熱核 \(e^{-k^2t}\)）。</p>
+<p><b>予測：</b> ゲージ不変な場の強さ \(F\) について、フロー後と平滑化後が一致する。ゲージに依存する縦の部分はフローでは変わらない（作用のゼロモード）。</p>
+<table>
+<tr><th>\(t\)</th><th>\(\max|F_{\rm flow}-F_{\rm smooth}|\) / \(F_{\rm smooth}\) の大きさ</th><th>\(\mathrm{div}A\)：元 / フロー後 / 平滑化後</th></tr>
+<tr><td class="n">0.5</td><td class="n">\(5.8\times10^{-4}\) / \(7.5\times10^{-2}\)（0.8%）</td><td class="n">0.863 / 0.863 / 0.094</td></tr>
+<tr><td class="n">2.0</td><td class="n">\(2.3\times10^{-5}\) / \(1.1\times10^{-2}\)（0.2%）</td><td class="n">0.863 / 0.863 / 0.013</td></tr>
+<tr><td class="n">5.0</td><td class="n">\(2.4\times10^{-6}\) / \(2.3\times10^{-3}\)（0.1%）</td><td class="n">0.863 / 0.863 / 0.003</td></tr>
+</table>
+<p>残差はフローの時間刻み（Euler 法）による。<b>ゲージ不変な物理の範囲で ES（平滑化）= BP（勾配フロー）</b>。<span class="ok">予測どおり</span>（線形では自明に近いが、ES = BP がゲージ理論のスケール設定の道具と同一であることを示す）。</p>
+
+<h3>F4.2 フローで決まるスケールと漸近的自由性（<code>scripts/f4b_flow_scale.py</code>）</h3>
+<p>SU(2) の配位（\(L=12\)、各 \(\beta\) でシード 2 つ × 配位 4 つ）を勾配フローで平滑化し、\(t^2\langle E\rangle\) が基準値に達する \(t_0\) を測った。
+<b>データを見る前に主基準を 0.2 と決めた</b>（0.1・0.3 は副次）。</p>
+<p><b>予測：</b> \(t_0\) は \(\beta\) とともに増え、比は 2 ループの漸近的スケーリング（\(t_0(2.4)/t_0(2.2)=2.73\)、\(t_0(2.4)/t_0(2.3)=1.65\)）と 10–20% 以内。</p>
+<p><b>やり直しの記録：</b> 最初の実装はフローの速さが半分だった（向き付きプラケットの数え方による因子 2 の取り違え）。本番前に修正した。</p>
+<table>
+<tr><th>\(\beta\)</th><th>\(t_0/a^2\)（基準 0.2、シード別）</th><th>基準 0.1</th><th>基準 0.3</th></tr>
+<tr><td class="n">2.2</td><td class="n">0.406, 0.407</td><td class="n">0.179</td><td class="n">0.68</td></tr>
+<tr><td class="n">2.3</td><td class="n">0.739, 0.840</td><td class="n">0.246</td><td class="n">1.27</td></tr>
+<tr><td class="n">2.4</td><td class="n">1.97, 2.95</td><td class="n">0.71</td><td class="n">3.7</td></tr>
+</table>
+<table>
+<tr><th>比</th><th>測定（基準 0.2）</th><th>2 ループ予測</th></tr>
+<tr><td>\(t_0(2.4)/t_0(2.2)\)</td><td class="n">約 6.0</td><td class="n">2.73</td></tr>
+<tr><td>\(t_0(2.4)/t_0(2.3)\)</td><td class="n">約 3.1</td><td class="n">1.65</td></tr>
+</table>
+<p><span class="ng">予測は不合格</span>。\(\beta\) とともにスケールが伸びる方向は合うが、比は予測の倍以上。考えられる原因：</p>
+<ul>
+<li>\(\beta=2.2\) では \(t_0\approx0.4a^2\)（平滑化半径 \(\sqrt{8t_0}\approx1.8a\)）と小さく、格子の切断の影響が大きい。</li>
+<li>\(\beta=2.4\) では \(\sqrt{8t_0}\approx4.4a\) が格子の半分（\(6a\)）に近く、有限体積の影響が出ている。2 つのシードの値の大きな差（1.97 と 2.95）はその兆候、あるいは配位間の自己相関が大きい兆候。</li>
+<li>副基準でも比がばらばら（基準 0.1 で 3.96、基準 0.3 で 5.4）で、まだ連続極限のスケーリング領域に入っていない。</li>
+</ul>
+<p>基準値を後から選び直して合わせることはしない。判定には、より大きな格子（\(L\ge20\)）と、より大きな \(\beta\) での計算が必要。<b>この格子サイズでは判定不能</b>として記録する。</p>
+
+<!-- ============================================================ -->
+<h2>F3. 弱い力と中性子の寿命（<code>scripts/f3_weak_decay.py</code>）</h2>
+
+<h3>F3.1 崩壊は零和ネットワークの中から現れる</h3>
+<p>全体としてはノルム保存（零和、ユニタリ）なネットワークで、1 つの局在モード（振動数 \(\omega_0\)、「中性子」）が \(N=1500\) 体の環（分散 \(2J\cos k\)）の全モードに弱く \(g/\sqrt N\) で結合する。</p>
+<p><b>予測：</b> 生き残り確率は指数減衰し、崩壊率はフェルミの黄金律 \(\Gamma=2g^2/\sqrt{4J^2-\omega_0^2}\)。</p>
+<table>
+<tr><th>\(\omega_0\)</th><th>\(g\)</th><th>測定 \(\Gamma\)</th><th>黄金律</th><th>比</th><th>指数からのずれ（\(\log\) で最大）</th></tr>
+<tr><td class="n">0.5</td><td class="n">0.08</td><td class="n">0.00661</td><td class="n">0.00661</td><td class="n">1.000</td><td class="n">0.001</td></tr>
+<tr><td class="n">1.0</td><td class="n">0.08</td><td class="n">0.00739</td><td class="n">0.00739</td><td class="n">1.000</td><td class="n">0.002</td></tr>
+<tr><td class="n">0.5</td><td class="n">0.12</td><td class="n">0.01487</td><td class="n">0.01487</td><td class="n">1.000</td><td class="n">0.002</td></tr>
+</table>
+<p>全体のノルムは保存したまま、局在モードからの「漏れ」が不可逆な崩壊に見える。<span class="ok">予測どおり</span>（教科書的な結果）。</p>
+
+<h3>F3.2 弱い力が短距離である理由：内部フレームが揃う（ヒッグス機構）</h3>
+<p>エージェントの内部フレームが自発的に揃う（位相 \(\theta_i\) が揃う）と、エネルギーに \(\kappa\sum(1-\cos(\theta_i-\theta_j+A_{ij}))\approx\tfrac\kappa2(A+D\theta)^2\) が加わり、ゲージ場に質量が付く。</p>
+<p><b>予測：</b> ゼロモードが消え、3 つのモードすべてに同じギャップ \(m^2=2\kappa\)。</p>
+<table>
+<tr><th>\(|k|\)</th><th>\(\omega^2\)</th><th>予測</th><th>ゼロモード</th></tr>
+<tr><td class="n">0</td><td class="n">0.1, 0.1, 0.1</td><td class="n">0.1 ×3</td><td class="n">0</td></tr>
+<tr><td class="n">0.3</td><td class="n">0.1, 0.1893, 0.1893</td><td class="n">縦 0.1、横 0.1893 ×2</td><td class="n">0</td></tr>
+</table>
+<p>\(\kappa=0.05\) で力の到達距離 \(1/m\approx3.2\) 格子単位（湯川型）。光子（\(\kappa=0\)）は無限遠まで届く。<span class="ok">予測どおり</span>（標準的なヒッグス機構）。
+「縦波のゲージモード」がヒッグスに食われて物理的な偏極になり、質量を持つ偏極が 3 つになる。W・Z ボソンの構造そのもの。</p>
+
+<h3>F3.3 中性子の寿命：構造と感度</h3>
+<p>\(n\to p\,e\,\bar\nu\)。電子の全エネルギーの終点 \(E_0=m_n-m_p=1.29333\) MeV、反跳は無視。</p>
+<ul>
+<li>位相空間積分 \(f=\frac1{m_e^5}\int_{m_e}^{E_0}p_eE_e(E_0-E_e)^2F(E_e)\,dE_e\)：クーロン補正なし 1.636、非相対論的フェルミ関数あり <b>1.692</b>（文献のすべての補正込みで 1.6887）。</li>
+<li>寿命の公式 \(\tau_n=4908.6\,\mathrm s/(|V_{ud}|^2(1+3\lambda^2))\)（Czarnecki–Marciano–Sirlin、記憶に基づく）に \(V_{ud}=0.97373,\ \lambda=1.2754\) を入れると <b>880.5 s</b>。
+測定はボトル法 約 877.8 s、ビーム法 約 887.7 s（記憶に基づく値）で、<b>約 9 秒の不一致（中性子寿命問題）は未解決</b>。</li>
+<li>Sargent 則：\(E_0\gg m_e\) で \(f\to E_0^5/30\)（\(E_0=100m_e\) で比 1.000）。</li>
+<li><b>感度：</b> \(m_n-m_p\) が 1% 減ると寿命は 6.8% 延び、1% 増えると 6.3% 縮む。\(m_n-m_p<m_e\) なら中性子は安定、\(m_n<m_p\) なら水素が不安定になる。</li>
+<li><b>なぜ 15 分も持つか：</b> \(\Gamma\sim G_F^2Q^5\)、\(G_F\sim g^2/M_W^2\)。\((M_W/Q)^4\approx1.5\times10^{19}\)。強い相互作用の時間 \(\hbar/1\,\mathrm{GeV}\approx7\times10^{-25}\) s に対し寿命は約 \(10^{27}\) 倍長い。
+この遅さの大部分は、F3.2 の「内部フレームが揃って媒介粒子が重くなる」ことから来ている。</li>
+</ul>
+<h3>F3.4 寿命を部品から組み立て直す（<code>scripts/f3b_neutron_lifetime.py</code>）</h3>
+<p>公式 4908.6 s を使わず、\(\Gamma=G_F^2|V_{ud}|^2(1+3\lambda^2)m_e^5f(1+\mathrm{RC})/(2\pi^3)\) を部品から計算した（入力値はすべて記憶に基づく、要確認）。</p>
+<p><b>予測：</b> (1) 相対論的フェルミ関数（陽子の有限サイズ込み）で \(f\) は文献値 1.6887 に 0.1% 以内。(2) 測定された \(\lambda,V_{ud}\) を入れるとボトル法（約 878 s）に近く、ビーム法（約 888 s）とは合わない。</p>
+<table>
+<tr><th>\(f\) の計算</th><th>値</th></tr>
+<tr><td>クーロン補正なし</td><td class="n">1.6299</td></tr>
+<tr><td>非相対論的フェルミ関数</td><td class="n">1.6853</td></tr>
+<tr><td>相対論的フェルミ関数＋有限サイズ（反跳込みの終点 1.292581 MeV）</td><td class="n">1.6859</td></tr>
+<tr><td>文献値（すべての補正込み）</td><td class="n">1.6887</td></tr>
+</table>
+<p>(1) は −0.16% で<span class="mid">わずかに外れ</span>。弱磁性やクーロン・反跳の交差項など、入れていない小さな補正の分と考える。</p>
+<table>
+<tr><th>\(\lambda\) の入力</th><th>寿命</th><th>誤差（\(\lambda\) / \(V_{ud}\) / RC）</th></tr>
+<tr><td>1.2754 ± 0.0013（PDG 平均）</td><td class="n">881.9 s</td><td class="n">1.5 / 0.6 / 0.3 s</td></tr>
+<tr><td>1.27641 ± 0.00056（PERKEO III）</td><td class="n">880.7 s</td><td class="n">0.6 / 0.6 / 0.3 s</td></tr>
+<tr><td>測定：ボトル法</td><td class="n">877.75 ± 0.3 s</td><td></td></tr>
+<tr><td>測定：ビーム法</td><td class="n">887.7 ± 2.2 s</td><td></td></tr>
+</table>
+<p>(2) 計算値はボトル法に近く、ビーム法から離れている。<span class="ok">予測の方向どおり</span>（\(f\) の 0.16% 不足を補うと 879–880 s）。
+「標準模型＋測定された入力」はボトル法と整合し、ビーム法が外れている、という状況が自分たちの計算でも再現された。</p>
+<p><b>不一致（9 s ≈ 1.1%）を 1 つの入力だけで説明するなら：</b> \(\lambda\) を 0.3% ずらす、または \(m_n-m_p\) を 0.1%（約 1.2 keV）ずらせば足りる。
+ただし \(m_n-m_p\) は \(10^{-9}\) の精度で測られており、これでは説明できない。暗黒崩壊の解釈なら見えない崩壊の分岐比は約 1.1%。</p>
+
+<h3>F3.5 各部品はネットワークのどこから来るべきか（道筋）</h3>
+<table>
+<tr><th>部品</th><th>物理での起源</th><th>この枠組みでの対応</th><th>状態</th></tr>
+<tr><td>位相空間 \(f\)（\(Q^5\) 則）</td><td>相対論的分散＋クーロン補正</td><td>零和ネットワークの分散関係（姉妹編 §7.2）＋光子（F1）</td><td class="ok">構造は出る</td></tr>
+<tr><td>\(G_F\sim g^2/M_W^2\)</td><td>ヒッグス機構</td><td>内部フレームの整列の強さ（F3.2）</td><td class="mid">構造のみ、値は未</td></tr>
+<tr><td>\(\lambda=g_A\)</td><td>強い力（核子の中のクォーク）</td><td>SU(3) エージェントのネットワーク（F2 の道具の延長、格子 QCD）</td><td class="ng">未着手。格子 QCD でも現在の精度は約 1% で、不一致の解明には足りない</td></tr>
+<tr><td>\(m_n-m_p\)</td><td>クォーク質量差＋電磁気</td><td>格子 QCD＋QED</td><td class="ng">未着手</td></tr>
+<tr><td>\(V_{ud}\)</td><td>世代の混合</td><td>世代の構造（明日の Koide 公式の議論とつながる）</td><td class="ng">未着手</td></tr>
+<tr><td>放射補正 RC</td><td>QED のループ</td><td>光子（F1）とのやり取りの高次</td><td class="ng">未着手</td></tr>
+</table>
+
+<div class="box warn">
+<b>正直な評価。</b> F3 の数値（880 s）は、測定値（\(V_{ud},\lambda\)、質量差）を入力して既知の公式で計算したもので、ES = BP の枠組みから<b>導いたものではない</b>。
+枠組みが与えたのは「崩壊＝零和ネットワーク内の漏れ」「短距離＝フレームの整列」という読み方だけ。
+寿命を予測するには \(g_A=\lambda\)（強い力、格子 QCD で計算可能）、\(m_n-m_p\)（クォーク質量差と電磁気）、\(M_W\)（フレーム整列の強さ）を枠組みから出す必要があり、どれも未着手。
+中性子寿命問題について、この枠組みは現時点で何も予測しない。
+</div>
+
+<!-- ============================================================ -->
+<h2>まとめ（暫定）</h2>
+<table>
+<tr><th>ネットワークの性質</th><th>出てくる物理</th><th>状態</th></tr>
+<tr><td>各エージェントが位相の基準を勝手に選べる</td><td>光子（2 偏極、ガウス拘束）</td><td class="ok">確認</td></tr>
+<tr><td>内部状態が多成分（フレームが \(SU(N)\)）</td><td>非可換ゲージ場、閉じ込め</td><td class="mid">傾向確認（\(R=4\) で U(1) の約 10 倍、誤差大）</td></tr>
+<tr><td>ES の平滑化 = BP の勾配フロー</td><td>ゲージ理論のスケール設定</td><td class="ok">線形で一致</td></tr>
+<tr><td>フローのスケールの \(\beta\) 依存</td><td>漸近的自由性</td><td class="ng">方向は合うが比が予測の倍以上。格子が小さく判定不能</td></tr>
+<tr><td>内部フレームが自発的に揃う</td><td>ゲージ場の質量（弱い力が短距離）</td><td class="ok">確認（標準）</td></tr>
+<tr><td>局在モードが連続体に漏れる</td><td>崩壊、黄金律</td><td class="ok">確認（標準）</td></tr>
+<tr><td>—</td><td>中性子の寿命の値、\(g_A\)、質量差、寿命問題</td><td class="ng">未着手（入力値で再現しただけ）</td></tr>
+</table>
+
+<h2>参考文献（記憶に基づく、要確認）</h2>
+<ol class="refs">
+<li>K. G. Wilson, “Confinement of quarks,” Phys. Rev. D 10 (1974).</li>
+<li>M. Creutz, “Monte Carlo study of quantized SU(2) gauge theory,” Phys. Rev. D 21 (1980).</li>
+<li>M. Lüscher, “Properties and uses of the Wilson flow in lattice QCD,” JHEP 08 (2010) 071.</li>
+<li>A. Czarnecki, W. J. Marciano, A. Sirlin, “Neutron lifetime and axial coupling connection,” PRL 120 (2018).</li>
+<li>F. M. Gonzalez et al. (UCNτ), PRL 127 (2021) ボトル法；A. T. Yue et al., PRL 111 (2013) ビーム法.</li>
+<li>B. Fornal, B. Grinstein, “Dark matter interpretation of the neutron decay anomaly,” PRL 120 (2018).</li>
+<li>J. A. Wheeler, “Information, physics, quantum: the search for links” (1989) — “it from bit”.</li>
+<li>L. Hardy, “Quantum theory from five reasonable axioms” (2001); G. Chiribella, G. M. D'Ariano, P. Perinotti, “Informational derivation of quantum theory,” PRA 84 (2011).</li>
+</ol>
+
+</main>
+</body>
+</html>
