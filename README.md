@@ -7,6 +7,7 @@
 - `ES_Infinite_Dimensional_Backpropagation.pdf` — 出発点の論文（ES = BP、Stein の補題、2026-01）
 - `es_physics_notes.html` — 時空と重力（虚数単位 i の出どころ、光円錐、質量、重力、重力波、時間が 1 本である理由）
 - `es_forces_notes.html` — 力（光子、閉じ込め、ES = BP としての勾配フロー、弱い力、中性子の寿命）
+- `es_ct_notes.html` — 光速 × 宇宙の年齢 = 一定（規約と主張の境目、共動座標・ネットワークの時計・ES のステップ幅の対応）
 - `scripts/` — 各節の数値実験（Python 3 + numpy / scipy）
 
 ブラウザで HTML を開き、印刷（Ctrl+P）で PDF にできます（数式は KaTeX を CDN から読み込みます）。
