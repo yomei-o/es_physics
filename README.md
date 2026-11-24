@@ -4,6 +4,7 @@
 「非同期に更新される零和エージェントのネットワーク」という言葉で物理をどこまで読めるかを
 数値実験で探索した研究ノートです。
 
+- `ES_Infinite_Dimensional_Backpropagation.pdf` — 出発点の論文（ES = BP、Stein の補題、2026-01）
 - `es_physics_notes.html` — 時空と重力（虚数単位 i の出どころ、光円錐、質量、重力、重力波、時間が 1 本である理由）
 - `es_forces_notes.html` — 力（光子、閉じ込め、ES = BP としての勾配フロー、弱い力、中性子の寿命）
 - `scripts/` — 各節の数値実験（Python 3 + numpy / scipy）
