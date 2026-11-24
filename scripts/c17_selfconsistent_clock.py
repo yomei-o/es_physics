@@ -3,7 +3,7 @@
 # (i)  intake fixed: Poisson(1) messages per tick                      -> gain ∝ 1/T -> p = 1
 # (ii) intake ∝ hopping c_net (coincidence rule, rate ∝ nu_i nu_j = c_net), and c_net := population-mean gain
 #      -> dn/dT = c = 1/n -> n = sqrt(2T) -> p = 1/2  (w = 1, stiff)
-# PRE-REGISTERED: (i) p = 1, (ii) p = 1/2; neither gives LCDM's present p = 0.975 or the matter era 0.8.
+# PRE-REGISTERED: (i) p = 1, (ii) p = 1/2 for the per-message gain (review: per-tick effective rate c/n is ~1/(2T), p = 1, in both).
 import numpy as np
 rng = np.random.default_rng(17)
 N, T = 20_000, 100_000

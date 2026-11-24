@@ -3,7 +3,7 @@
 #   correlations used: r(R,l_A) = 0.46, r(R,wb) = -0.66, r(l_A,wb) = -0.33  (approximate values from memory / secondary quotes; verify).
 # Sound horizons: z* (Hu-Sugiyama 1996), z_d (Eisenstein-Hu 1998) fitting formulas; integrals rescaled so that the Planck best fit
 #   (h=0.6736, wb=0.02237, wc=0.1200) gives r_s(z*) = 144.43 Mpc and r_d = 147.09 Mpc.
-# Parameters: Omega_m, h, Omega_X (omega_b from its prior, profiled on a grid).  Curvature run is the pipeline check.
+# Parameters: Omega_m, h, Omega_X on a grid; omega_b FIXED at 0.02236 (see c22 for the continuous profile incl. omega_b).  Curvature run is the pipeline check.
 # PRE-REGISTERED: curvature within 1 sigma of DESI+CMB 0.0023 ± 0.0011 with sigma ~0.0015; tick fluid sigma(Omega_E) ~ 0.005.
 import numpy as np
 

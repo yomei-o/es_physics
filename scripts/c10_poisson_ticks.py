@@ -2,6 +2,7 @@
 # C9: with time gauge N = a^beta, the conserved tick energy is a fluid with w = beta/3, and in the action
 #   S_E = - rho_E0 * U,   U = V_c * T_total,   T_total = ∫ dT = ∫ a^{-beta} d tau   (Planck units, hbar = c = 1)
 # If the number of updates U is Poisson (Delta U ~ sqrt U) then rho_E0 ~ 1/sqrt(U)  (Sorkin's "everpresent Lambda" for beta = -3).
+# (Review: only beta=-3 is normalization independent; the others assume sites are Planck-sized today.)
 # PRE-REGISTERED: Omega_E = rho_E0 / rho_crit is O(1) (0.3 - 5) for beta = -3 (Lambda), 0 (dust: per-site proper time), -1 (network tick: w=-1/3),
 #   because U ~ (t0/tP)^4 and rho_crit ~ (t0/tP)^-2 for every counting.
 import numpy as np
