@@ -90,7 +90,101 @@ $$V_\sigma(\phi)=\mathbb E[V(\phi+\sigma\epsilon)]=\frac{m^2+\frac\lambda2\sigma
 <tr><td>ES との関係</td><td>実ガウスの ES は複素重みを直接扱えない。Stein の補題は正則関数なら複素分散でも形式的に成り立つが、確率としての意味を失う。複素ランジュバンはその隙間を埋める方法で、正しさは裾の振る舞いで決まる</td></tr>
 </table>
 
-<!-- 結果は M1 以降に計算後に追記する -->
+<p class="sub">M0 は git コミット 611e53b（2026-11-25 10:06）で固定。以下はその後の計算。</p>
+
+<!-- ============================================================ -->
+<h2>M1. 結果：ES 型の応答推定は非平衡でも正しい（<code>scripts/m1_fdt_novikov.py</code>）</h2>
+<p>\(T=0.5\)、4 万本の独立な軌道。応答 \(R(t,s)\) を \(t-s=0.25\)–2.5 で比較。</p>
+<table>
+<tr><th></th><th>平衡</th><th>非平衡（\(F=0.6,\ \omega=1\)）</th></tr>
+<tr><td>(b) ES/Novikov と (a) 直接法の差（(b) の誤差単位）</td><td class="n">平均 0.88σ</td><td class="n">平均 0.68σ</td></tr>
+<tr><td>(c) 平衡の揺動散逸定理と (a) の差（信号の平均 0.44）</td><td class="n">0.014（3%）</td><td class="n">0.038（9%）、\(t-s=1.0\)–1.75 で系統的</td></tr>
+<tr><td>誤差の比 (b)/(a)</td><td class="n">約 20</td><td class="n">約 20</td></tr>
+</table>
+<ul>
+<li>(b) は摂動を一切加えず、ノイズとの相関だけで (a) と一致した。<b>平衡を仮定しないので非平衡でも正しい</b>。<span class="ok">予測どおり</span></li>
+<li>(c) は平衡では一致し、非平衡では外れた。<span class="ok">予測どおり</span>（外れ方は 10–20% 程度と穏やか）</li>
+<li>(b) の誤差は (a) の約 20 倍。ES 型の推定の代償。<span class="ok">予測どおり</span></li>
+</ul>
+<p><b>やり直しの記録：</b> 最初は (b) の正規化で \(dt\) を 1 回多く掛けて 100 倍小さく出た。正しくは Girsanov の重み \(x(t)\,\Delta W_s/(2T\,dt)\)。(c) は \(dt\) 刻みの数値微分でノイズが 100 倍に増幅されていたので差分幅を ±0.1 にした。</p>
+<p class="mid">既知との関係：「摂動なしの軌道から応答を求める」方法は、Novikov の定理・Girsanov の重み・非平衡の応答理論（Baiesi–Maes–Wynants など）として既知。ここでの意味は、ES = BP の Stein の補題が<b>そのまま非平衡応答の推定法</b>であることを確かめた点。</p>
+
+<!-- ============================================================ -->
+<h2>M2. 結果：ES の平滑化はくりこみ群の「線形の半分」（<code>scripts/m2_rg_smoothing.py</code>）</h2>
+<p>0 次元の \(\phi^4\)（求積で厳密に計算可能）で、速いモード \(f\sim N(0,\sigma^2)\) を (i) ES の平滑化 \(\mathbb E_f[V(\phi+f)]\) と (ii) 厳密な積分 \(-\ln\mathbb E_f[e^{-V(\phi+f)}]\) で消去し、係数のずれを比べた。</p>
+<table>
+<tr><th>\(\lambda\)</th><th>\(\sigma^2\)</th><th>平滑化：質量項のずれ</th><th>平滑化：\(\Delta\lambda\)</th><th>厳密：質量項のずれ</th><th>厳密：\(\Delta\lambda\)</th><th>予測 \(\lambda\sigma^2/2\)</th></tr>
+<tr><td class="n">0.1</td><td class="n">0.1</td><td class="n">0.00500</td><td class="n">0</td><td class="n">0.00499</td><td class="n">−0.00035</td><td class="n">0.00500</td></tr>
+<tr><td class="n">0.5</td><td class="n">0.1</td><td class="n">0.02500</td><td class="n">0</td><td class="n">0.02484</td><td class="n">−0.00863</td><td class="n">0.02500</td></tr>
+<tr><td class="n">1.0</td><td class="n">0.3</td><td class="n">0.15000</td><td class="n">0</td><td class="n">0.13471</td><td class="n">−0.24103</td><td class="n">0.15000</td></tr>
+</table>
+<ul>
+<li>平滑化は質量項を厳密に \(\lambda\sigma^2/2\) ずらし（タドポール）、\(\lambda\) は変えない。<span class="ok">予測どおり</span></li>
+<li>厳密な積分は質量項を 1 次で同じだけずらすが、\(\lambda\) も \(\approx-\frac72\lambda^2\sigma^4\) 走る。平滑化はこれを取りこぼす。<b>ES の平滑化 = くりこみ群のうち熱方程式（線形）の部分＝キュムラント展開の 1 次</b>。<span class="ok">予測どおり</span></li>
+<li><b>訂正：</b> M0 で比較に挙げた「1 ループ 1PI の \(-\frac32\lambda^2\sigma^4\)」は、この場の分割では比べる相手として不適切だった。厳密な \(-\frac72\) は、1PI の \(-\frac32\) に、\(\phi^3f\) と \(\phi f^3\) の共分散からくる \(-2\) が加わったもの（解析的に確認）。</li>
+<li>M0 の予測 (2)（格子 \(\phi^4\) の運動量殻での一致）は、(1) と同じ恒等式になるため計算を省略した。</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>M3. 結果：微分できないシミュレーションでは高次元で ES が有利（<code>scripts/m3_nondiff_sim.py</code>）</h2>
+<p>吸収だけの板（\(\mu=1\)、\(d=1.5\)、解析的な勾配 −0.22313）。透過はしきい値で数える指示関数。20 回の繰り返しの平均とばらつき（同じ計算量）：</p>
+<table>
+<tr><th>方法</th><th>平均</th><th>ばらつき</th><th>目標</th></tr>
+<tr><td>経路ごとの微分（自動微分に相当）</td><td class="n">0</td><td class="n">0</td><td class="n">−0.22313</td></tr>
+<tr><td>有限差分（共通乱数なし）</td><td class="n">−0.2160</td><td class="n">0.0127</td><td class="n">−0.22313</td></tr>
+<tr><td>有限差分（共通乱数あり）</td><td class="n">−0.2234</td><td class="n"><b>0.0040</b></td><td class="n">−0.22313</td></tr>
+<tr><td>ES \(\sigma=0.1\)</td><td class="n">−0.2246</td><td class="n">0.0110</td><td class="n">−0.2243（平滑化後）</td></tr>
+<tr><td>ES \(\sigma=0.3\)</td><td class="n">−0.2334</td><td class="n">0.0036</td><td class="n">−0.2334（平滑化後）</td></tr>
+</table>
+<p>20 層の厚さ（20 パラメータ）の勾配ベクトル、同じ計算量 4 万粒子：<b>ES の相対誤差 0.42、座標ごとの有限差分 1.97</b>。</p>
+<ul>
+<li>経路ごとの微分は常に 0 で正しい勾配を与えない。<span class="ok">予測どおり</span></li>
+<li>ES は平滑化した目的関数の勾配を偏りなく推定（\(\sigma\) が大きいと真の勾配からずれるが、平滑化後の値とは一致）。<span class="ok">予測どおり</span></li>
+<li><b>予測の外れ：</b> パラメータ 1 つなら、共通乱数を使った有限差分が最も良かった（この模型は共通乱数でほぼ連続になる）。<b>ES が勝つのは高次元</b>（全成分を同時に推定できる）。</li>
+<li>散乱ありの場合（M0 で触れた \(p_a<1\)）は今回は走らせていない。</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>M4. 結果：複素ランジュバン法の正誤は分布の裾で見分けられる（<code>scripts/m4_complex_langevin.py</code>）</h2>
+<table>
+<tr><th>\(\sigma\)</th><th>\(\lambda\)</th><th>厳密 \(\langle x^2\rangle\)</th><th>複素ランジュバン</th><th>誤差</th><th>\(|{\rm Im}\,z|\) の 99.9% 点</th><th>整合性の指標 \(|\langle Lz^2\rangle|\)（理想 0）</th></tr>
+<tr><td>1+i</td><td class="n">1</td><td class="n">0.428−0.148i</td><td class="n">0.430−0.149i</td><td class="n">0.002</td><td class="n">0.27</td><td class="n">0.015</td></tr>
+<tr><td>0.2+i</td><td class="n">1</td><td class="n">0.558−0.228i</td><td class="n">0.557−0.228i</td><td class="n">0.002</td><td class="n">0.48</td><td class="n">0.007</td></tr>
+<tr><td>1+5i</td><td class="n">0.2</td><td class="n">0.041−0.196i</td><td class="n">0.043−0.184i</td><td class="n">0.012</td><td class="n">2.46</td><td class="n">0.20</td></tr>
+<tr><td>1+3i</td><td class="n">1</td><td class="n">0.206−0.279i</td><td class="n">0.207−0.299i</td><td class="n">0.020</td><td class="n">1.39</td><td class="n">5.2</td></tr>
+<tr><td>−1+i</td><td class="n">1</td><td class="n">0.910−0.459i</td><td class="n">0.654−0.449i</td><td class="n">0.255</td><td class="n">19</td><td class="n">3669</td></tr>
+<tr><td>4i</td><td class="n">0.1</td><td class="n">0.000−0.255i</td><td class="n">−30.5+0.28i</td><td class="n">30.5</td><td class="n">78</td><td class="n">7130</td></tr>
+</table>
+<ul>
+<li>正しい場合と外れる場合がある。<span class="ok">予測どおり</span></li>
+<li>分布が虚軸方向に局在し（99.9% 点が小さい）、整合性の指標が 0 に近いときは正しく、裾が広く指標が大きいときは外れる。<b>裾と誤差が対応する</b>。<span class="ok">予測どおり</span>（\(\sigma=1+5i\) と \(1+3i\) は中間的で、裾の指標と指標 \(\langle Lz^2\rangle\) の順序が完全には揃わない）</li>
+</ul>
+<p class="mid">既知との関係：この模型と正しさの基準（分布の局在、\(\langle LO\rangle=0\)、境界項）は Aarts–Seiler–Stamatescu らの複素ランジュバン法の研究で既知。</p>
+<div class="box">
+<b>ES = BP との関係。</b> 実ガウスの ES（Stein の補題）は、重みが正の確率でないと使えない。複素ランジュバン法は「ノイズは実数のまま、変数を複素平面に出す」ことで Stein の補題（部分積分）を形式的に保つ。
+その部分積分が正当化されるのは、分布が十分速く減衰して境界項が消えるときだけで、それが M4 の「裾で正誤が決まる」ことの正体である。姉妹編の「実数のサンプリングから \(i\) は出るか」という問いは、計算法としてはこの境界項の問題になる。
+</div>
+
+<!-- ============================================================ -->
+<h2>まとめ</h2>
+<table>
+<tr><th>テーマ</th><th>結果</th><th>ES = BP の役割</th></tr>
+<tr><td>M1 揺動散逸</td><td class="ok">非平衡でも正しい応答（誤差は約 20 倍）</td><td>Stein の補題＝ノイズとの相関で応答を測る式</td></tr>
+<tr><td>M2 くりこみ群</td><td class="ok">質量のくりこみは平滑化で出る、結合定数の走りは出ない</td><td>平滑化＝キュムラント展開の 1 次</td></tr>
+<tr><td>M3 微分できないシミュレーション</td><td class="ok">自動微分が 0 になる所で正しい勾配。高次元で有限差分に勝つ</td><td>平滑化した目的関数の勾配</td></tr>
+<tr><td>M4 符号問題</td><td class="ok">複素ランジュバンの正誤は裾で決まる</td><td>部分積分（Stein）の境界項</td></tr>
+</table>
+<p>4 つとも、ES = BP を計算法として読むと既知の手法・定理と一致した。新しさがあるとすれば、これらが<b>1 つの恒等式（ガウス部分積分）の 4 つの顔</b>として並ぶことと、その破れ方（分散、2 次キュムラント、境界項）が整理されることである。</p>
+
+<h2>参考文献（記憶に基づく、要確認）</h2>
+<ol class="refs">
+<li>E. A. Novikov, “Functionals and the random-force method in turbulence theory,” Sov. Phys. JETP 20 (1965).</li>
+<li>M. Baiesi, C. Maes, B. Wynants, “Fluctuations and response of nonequilibrium states,” PRL 103 (2009).</li>
+<li>J. Polchinski, “Renormalization and effective Lagrangians,” Nucl. Phys. B 231 (1984).</li>
+<li>G. Aarts, E. Seiler, I.-O. Stamatescu, “The complex Langevin method: when can it be trusted?,” PRD 81 (2010).</li>
+<li>K. Nagata, J. Nishimura, S. Shimasaki, “Argument for justification of the complex Langevin method and the condition for correct convergence,” PRD 94 (2016).</li>
+<li>T. Salimans et al., “Evolution Strategies as a Scalable Alternative to Reinforcement Learning” (2017).</li>
+</ol>
 
 </main>
 </body>

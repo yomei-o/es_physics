@@ -9,6 +9,7 @@
 - [es_forces_notes.html](es_forces_notes.html) — 力（光子、閉じ込め、ES = BP としての勾配フロー、弱い力、中性子の寿命）
 - [es_ct_notes.html](es_ct_notes.html) — 光速 × 宇宙の年齢 = 一定（規約と主張の境目、共動座標・ネットワークの時計・ES のステップ幅の対応）
 - [es_ct_summary.html](es_ct_summary.html) — 上のノートの要約（ここまでにわかったこと、観測との突き合わせ、訂正の記録）
+- [es_methods_notes.html](es_methods_notes.html) — ES = BP を計算法として：揺動散逸・くりこみ群・微分できないシミュレーション・符号問題
 - [koide_notes.html](koide_notes.html) — Koide 公式（規則を計算前に固定し、クォーク・ニュートリノで検定 → 棄却）
 - [scripts/](https://github.com/yomei-o/es_physics/tree/main/scripts) — 各節の数値実験（Python 3 + numpy / scipy）
 
