@@ -115,9 +115,14 @@ $$Q=\frac{m_e+m_\mu+m_\tau}{\left(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\right)^2
 <tr><td>逆順序</td><td class="n">0.4978</td><td class="ng">解なし</td></tr>
 </table>
 <p>振幅 \(\sqrt{m}\) をすべて正とする限り、<b>どちらの順序でも 2/3 に届かない</b>。K1 の予測は<span class="ng">外れ</span>。</p>
+<p><b>値の確認（2026-11-25 追記）：</b> 記憶の値 \(\Delta m^2_{21}=7.42\times10^{-5}\) は旧版の値で、NuFIT 6.0 では <b>\(7.49\times10^{-5}\)</b> eV²、\(\Delta m^2_{3\ell}=+2.513\times10^{-3}\) eV²（正順序）。
+NuFIT 6.0 の値で計算し直しても、\(Q\) の最大値は正順序 0.584、逆順序 0.499 で結論は同じ。</p>
 <p><b>事後的な変形（事前登録にない）：</b> 1 つの振幅を負にすると解がある（Brannen の扱いと同じ）。正順序で \(-\sqrt{m_1}\) とすると
-\(m=(0.00036,\ 0.00862,\ 0.05014)\) eV、\(\sum m_\nu=0.0591\) eV。宇宙論の上限（約 0.07–0.12 eV、記憶に基づく）とは矛盾しないが、
-符号を後から選んでいるので予測としては数えない。ただし将来の \(\sum m_\nu\) の測定（約 0.06 eV 付近の精度）で検証できる形にはなっている。<span class="mid">参考</span></p>
+\(m=(0.00036,\ 0.00866,\ 0.05013)\) eV、\(\sum m_\nu=0.0592\) eV（NuFIT 6.0 の値で）。
+符号を後から選んでいるので予測としては数えない。<span class="mid">参考</span></p>
+<p><b>宇宙論との比較（確認済み）：</b> DESI DR2 BAO＋CMB（ΛCDM、縮退した 3 種）では \(\sum m_\nu<0.064\) eV（95%）、境界補正した頻度論の上限は 0.053 eV（arXiv:2503.14744）。
+この事後的な解 0.0592 eV は、正順序で振動実験が許す最小値 0.0588 eV にほぼ等しく、上限の内側にある。
+ただし DESI の上限自体が振動実験の下限とすでに緊張関係にあり、\(\sum m_\nu\) が 0.059 eV より小さいと確定すれば、この解に限らず正順序そのものが問題になる。</p>
 
 <!-- ============================================================ -->
 <h2>K5. 位相 δ</h2>
@@ -200,6 +205,8 @@ ES ネットワークの枠組みは、現時点で Koide 公式を説明しな�
 <li>W. Rodejohann, H. Zhang, “Extension of an empirical charged lepton mass relation to the neutrino sector,” PLB 698 (2011).</li>
 <li>Y. Sumino, “Family gauge symmetry as an origin of Koide's mass formula and charged lepton spectrum,” JHEP 05 (2009) 075.</li>
 <li>Z.-Z. Xing, H. Zhang, S. Zhou, “Updated values of running quark and lepton masses,” PRD 77 (2008); 同 PRD 86 (2012).</li>
+<li>I. Esteban et al., “NuFit-6.0: updated global analysis of three-flavor neutrino oscillations,” JHEP 12 (2024) 216, arXiv:2410.05380（確認済み）.</li>
+<li>W. Elbers et al. (DESI), “Constraints on neutrino physics from DESI DR2 BAO and DR1 full shape,” PRD 112, 083513, arXiv:2503.14744（確認済み）.</li>
 </ol>
 
 </main>
