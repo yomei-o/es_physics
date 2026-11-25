@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ES = BP の計算法</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--fg:#1d1d1f;--muted:#5f6368;--bg:#ffffff;--line:#d9dce1;--accent:#2b5fa8;--ok:#1e7a3c;--ng:#b3261e;--warn:#8a5a00;--box:#f5f7fa}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.85;font-size:16px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 16px 4rem}
+h1{font-size:1.6rem;line-height:1.4;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
+h2{font-size:1.2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-top:2.6rem}
+h3{font-size:1.02rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;font-family:"Hiragino Sans","Yu Gothic",sans-serif}
+th,td{border:1px solid var(--line);padding:.35rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--box)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.box{background:var(--box);border-left:3px solid var(--accent);padding:.7rem 1rem;margin:1.2rem 0}
+.warn{border-left-color:var(--warn)}
+.ok{color:var(--ok);font-weight:bold}.ng{color:var(--ng);font-weight:bold}.mid{color:var(--warn);font-weight:bold}
+code{font-family:Consolas,"Courier New",monospace;font-size:.85em;background:var(--box);padding:0 .25em}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+ol.refs{font-size:.88rem}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}table,.box,.katex-display{break-inside:avoid}a{color:inherit;text-decoration:none}}
+@page{size:A4;margin:18mm 16mm}
+</style>
+</head>
+<body>
+<main>
+
+<h1>ES = BP の計算法 ― 揺動散逸・くりこみ・微分できないシミュレーション・符号問題</h1>
+<div class="sub">研究ノート（随時追記） ・ 初版 2026-11-25 ・ 大谷 + Claude ・ 姉妹編：<code>es_physics_notes.html</code>、<code>es_forces_notes.html</code>、<code>koide_notes.html</code></div>
+
+<div class="box warn">
+<b>このノートの位置づけ。</b> 姉妹編では「ES = BP から新しい物理法則が出るか」を探し、ほとんどが既知の物理の再構成だった。
+このノートでは方向を変え、<b>ES = BP を計算法として整理し、どこで役に立ち、どこで破綻するか</b>を調べる。
+各節の予測は計算前に M0 節に固定する（git コミットで時刻を残す）。既知の手法の再発見である可能性が高い部分は明記する。
+</div>
+
+<h2>出発点</h2>
+<p>ES = BP の中身は Stein の補題（ガウス測度での部分積分）：</p>
+$$\nabla_\theta\,\mathbb E_\epsilon[L(\theta+\sigma\epsilon)]=\frac1\sigma\,\mathbb E_\epsilon[L(\theta+\sigma\epsilon)\,\epsilon] .$$
+<p>「<b>系をそっと押したときの応答（微分）は、系に入っているノイズとの相関で測れる</b>」と読める。これは統計物理では Furutsu–Novikov の定理として知られる形で、揺動散逸定理と同じ型である。</p>
+
+<!-- ============================================================ -->
+<h2>M0. 事前登録（計算前に固定）</h2>
+
+<h3>M1. ES = 揺動散逸：応答をノイズとの相関で測る</h3>
+<p>過減衰 Langevin 方程式 \(dx=-U'(x)dt+h(t)dt+\sqrt{2T}\,dW\)（二重井戸 \(U=x^4/4-x^2/2\)）で、時刻 \(s\) の小さな力 \(h\) に対する \(\langle x(t)\rangle\) の応答 \(R(t,s)\) を 3 通りで測る。</p>
+<ul>
+<li>(a) 直接法：実際に小さな力を加えて差をとる（共通乱数）</li>
+<li>(b) ES / Novikov：<b>摂動を加えず</b>、\(R(t,s)=\frac{1}{2T}\langle x(t)\,\xi(s)\rangle\)（\(\xi\) は時刻 \(s\) のノイズ）</li>
+<li>(c) 平衡の揺動散逸定理：\(R(t)=-\frac1T\frac{d}{dt}C(t)\)（\(C\) は自己相関）</li>
+</ul>
+<table>
+<tr><th>状況</th><th>予測</th></tr>
+<tr><td>平衡</td><td>(a)(b)(c) が統計誤差内で一致</td></tr>
+<tr><td>非平衡（周期的な外力で駆動）</td><td>(a)(b) は一致、(c) は外れる。<b>ES 型の推定は平衡を仮定しない</b></td></tr>
+<tr><td>分散</td><td>(b) の分散は (a) より大きい（ES の弱点）。ただし (b) は 1 回のシミュレーションで全ての \(s\) の応答を同時に出せる</td></tr>
+</table>
+
+<h3>M2. くりこみ群 = ES の平滑化</h3>
+<p>ポテンシャル \(V(\phi)=\frac{m^2}2\phi^2+\frac\lambda{4!}\phi^4\) を分散 \(\sigma^2\) でガウス平滑化すると</p>
+$$V_\sigma(\phi)=\mathbb E[V(\phi+\sigma\epsilon)]=\frac{m^2+\frac\lambda2\sigma^2}{2}\phi^2+\frac\lambda{4!}\phi^4+\text{定数} .$$
+<p><b>予測：</b> (1) 数値の平滑化で \(\phi^2\) の係数のずれが \(\frac\lambda2\sigma^2\)（1 ループのタドポールによる質量のくりこみと同じ形）、\(\phi^4\) の係数は不変。
+(2) 格子 \(\phi^4\) 理論で、運動量の高い殻のモードを積分したときの 1 ループの質量のずれ \(\frac\lambda2\langle\phi_{\rm shell}^2\rangle\) と、平滑化の \(\sigma^2=\langle\phi_{\rm shell}^2\rangle\) が一致。
+(3) ただし平滑化（Polchinski 方程式の線形部分＝熱方程式）だけでは \(\lambda\) の走り（\(\phi^4\) 係数の 1 ループ補正）は出ない。<b>ES の平滑化はくりこみ群の半分（線形部分）である</b>。</p>
+
+<h3>M3. 微分できないシミュレーションの勾配</h3>
+<p>粒子が厚さ \(d\) の板を通過するモンテカルロ（指数分布の自由行程、散乱か吸収かを乱数で決める if 文、検出器はしきい値で数える）で、透過率 \(P(d)\) の \(d\) 微分を推定する。</p>
+<table>
+<tr><th>方法</th><th>予測</th></tr>
+<tr><td>経路ごとの微分（自動微分に相当）</td><td>しきい値と離散的な分岐のため、ほとんどの経路で 0 または未定義。<b>正しい勾配を与えない</b></td></tr>
+<tr><td>有限差分（共通乱数あり／なし）</td><td>共通乱数なしでは分散が非常に大きい。ありでも離散的な分岐が切り替わる点でノイズが出る</td></tr>
+<tr><td>ES（対称差分の乱数摂動）</td><td>平滑化した透過率の勾配を不偏に推定。\(\sigma\to0\) で解析的な勾配（吸収だけの場合 \(-\mu e^{-\mu d}\)）に一致</td></tr>
+</table>
+
+<h3>M4. 符号問題：複素ランジュバン法が正しいときと外れるとき</h3>
+<p>1 変数の模型 \(Z=\int dx\,e^{-S(x)}\)、\(S=\frac\sigma2x^2+\frac\lambda4x^4\)、\(\sigma\) を複素数にすると重みが複素数になり、通常のサンプリング（ES を含む）は使えない。
+複素ランジュバン法は \(x\) を複素化し \(dz=-S'(z)dt+dW\)（実ノイズ）で動かす。これは「ES のノイズは実数のまま、変数を複素平面に出す」方法。</p>
+<table>
+<tr><th>量</th><th>予測</th></tr>
+<tr><td>\(\langle x^2\rangle\) の正誤</td><td>パラメータによって正しい場合と外れる場合がある（文献で既知の現象）</td></tr>
+<tr><td>見分け方</td><td>複素ランジュバンの分布が虚軸方向に速く減衰する（局在する）ときは正しく、べき的な裾を持つときは外れる。<b>裾の指標と誤差の大きさが対応する</b></td></tr>
+<tr><td>ES との関係</td><td>実ガウスの ES は複素重みを直接扱えない。Stein の補題は正則関数なら複素分散でも形式的に成り立つが、確率としての意味を失う。複素ランジュバンはその隙間を埋める方法で、正しさは裾の振る舞いで決まる</td></tr>
+</table>
+
+<!-- 結果は M1 以降に計算後に追記する -->
+
+</main>
+</body>
+</html>
