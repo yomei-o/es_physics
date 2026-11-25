@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koide 公式と ES ネットワーク</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--fg:#1d1d1f;--muted:#5f6368;--bg:#ffffff;--line:#d9dce1;--accent:#2b5fa8;--ok:#1e7a3c;--ng:#b3261e;--warn:#8a5a00;--box:#f5f7fa}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.85;font-size:16px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 16px 4rem}
+h1{font-size:1.6rem;line-height:1.4;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
+h2{font-size:1.2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-top:2.6rem}
+h3{font-size:1.02rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;font-family:"Hiragino Sans","Yu Gothic",sans-serif}
+th,td{border:1px solid var(--line);padding:.35rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--box)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.box{background:var(--box);border-left:3px solid var(--accent);padding:.7rem 1rem;margin:1.2rem 0}
+.warn{border-left-color:var(--warn)}
+.ok{color:var(--ok);font-weight:bold}.ng{color:var(--ng);font-weight:bold}.mid{color:var(--warn);font-weight:bold}
+code{font-family:Consolas,"Courier New",monospace;font-size:.85em;background:var(--box);padding:0 .25em}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+ol.refs{font-size:.88rem}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}table,.box,.katex-display{break-inside:avoid}a{color:inherit;text-decoration:none}}
+@page{size:A4;margin:18mm 16mm}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Koide 公式と ES ネットワーク ― 3 世代の質量に「等分配」はあるか</h1>
+<div class="sub">研究ノート（随時追記） ・ 初版 2026-11-25 ・ 大谷 + Claude ・ 姉妹編：<code>es_physics_notes.html</code>（時空と重力）、<code>es_forces_notes.html</code>（力）</div>
+
+<div class="box warn">
+<b>このノートの位置づけと最大の注意。</b> Koide 公式は数秘術（数字合わせ）に陥りやすい題材である。Gemini との対話では \(\sqrt2\) を置いた時点で答えが決まる循環論法になっていた（姉妹編 付録 B）。
+このノートでは、<b>規則と予測を計算の前に K1 節に固定し、以後書き換えない</b>。外れた予測もそのまま残す。
+</div>
+
+<!-- ============================================================ -->
+<h2>K0. 何が分かっていて、何が試験になるか</h2>
+<p>Koide 公式（1982）：荷電レプトンの質量について</p>
+$$Q=\frac{m_e+m_\mu+m_\tau}{\left(\sqrt{m_e}+\sqrt{m_\mu}+\sqrt{m_\tau}\right)^2}=\frac23 .$$
+<p>姉妹編 付録 B で、これは次と同値であることを示した：3 世代の振幅 \((\sqrt{m_1},\sqrt{m_2},\sqrt{m_3})\) を世代の巡回 \(\mathbb Z_3\) で分解したとき、
+<b>対称成分（3 つの平均、実 1 次元）と回転成分（実 2 次元の回転表現）のパワーが等しい</b>。すなわち \((1,1,1)\) とのなす角が 45°、対称成分にいる確率 \(P_{\rm sym}=1/(3Q)=1/2\)。</p>
+<p><b>正直な前提：</b> 荷電レプトンの \(Q\approx0.66666\) は、このノートを書く前から二人とも知っている。<b>レプトンでは予測の試験にならない</b>。試験になるのは以下だけ：</p>
+<ol>
+<li>同じ規則をクォークに当てはめた結果</li>
+<li>絶対質量が未測定のニュートリノへの予測（宇宙論の上限と比較できる）</li>
+<li>位相 \(\delta\)（Brannen の表示で \(\approx2/9\)）について規則が何か言えるか</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2>K1. 事前登録：数え方の規則と予測（計算前に固定、以後変更しない）</h2>
+
+<h3>K1.1 規則（姉妹編の原理だけから決める）</h3>
+<p>姉妹編で確立した原理：(a) 力学は零和（反対称）で、<b>時間発展の最小単位は回転平面（\(J\) の組）</b>。実 1 次元だけでは回転できない（§5.3）。
+(b) 資源（ノルム）は保存される。(c) e^{−S} からの ES サンプリングは熱平衡を与え、等分配が働く。</p>
+<div class="box">
+<b>規則 R（自由度の数え方）。</b> 等分配の単位は「独立に時間発展できる最小の部分空間」、すなわち \(\mathbb Z_3\) の<b>実既約表現 1 つにつき 1 単位</b>とする。
+世代空間 \(\mathbb R^3\) は 実 1 次元の対称表現 と 実 2 次元の回転表現（1 つの回転平面＝1 つの振動子）の 2 つに分かれるので、両者に等しいパワーが入る。
+<br>（教科書の等分配「実自由度 1 つにつき 1 単位」なら 1 : 2 となり \(Q=1\)。規則 R は「回転平面は 1 単位」と数える点が違う。）
+</div>
+<p><b>規則 R をこの時点で採用する根拠と弱点：</b> 根拠は (a)（零和の力学では回転平面が分割できない単位）。弱点は、対称成分（実 1 次元）がなぜ 1 単位として扱われるか（それ自体は回転できない）を説明できていないこと。
+また、荷電レプトンで 2/3 が出ることを知った上での選択であり、<b>レプトンについては循環が残る</b>。</p>
+
+<h3>K1.2 予測（計算前に記入）</h3>
+<table>
+<tr><th>対象</th><th>規則 R の予測</th><th>判定基準</th></tr>
+<tr><td>荷電レプトン</td><td>\(Q=2/3\)</td><td>試験にならない（既知）</td></tr>
+<tr><td>上型クォーク (u,c,t)、下型クォーク (d,s,b)</td><td>規則に世代間の違いを区別する要素はないので、同じく \(Q=2/3\)</td><td>\(|Q-2/3|<1\%\) なら合格。外れたら「規則 R はクォークでは成り立たない」と記録する（強い力の補正を後付けで持ち出さない）</td></tr>
+<tr><td>ニュートリノ</td><td>\(Q=2/3\)。振動実験の質量差 \(\Delta m^2\) と組み合わせると絶対質量と総和 \(\sum m_\nu\) が決まる</td><td>宇宙論の上限（\(\sum m_\nu\lesssim0.07\)–\(0.12\) eV、記憶に基づく）と矛盾しなければ生き残り</td></tr>
+<tr><td>位相 \(\delta\)</td><td>規則 R は対称成分と回転成分の<b>大きさ</b>の比しか決めず、回転成分の<b>位相</b>については何も言わない</td><td>予測なし。\(\delta\approx2/9\) を規則から出せたら新しい結果だが、出せないと予想する</td></tr>
+<tr><td>規則 R を満たす力学</td><td>\(\mathbb Z_3\) 対称な（巡回的な）零和の力学で長時間選択されるモードは、対称成分だけ（0°）か回転成分だけ（90°）になり、45° は出ない</td><td>45° を出すには対称成分と回転成分を混ぜる何か（共鳴など）が必要、と予想</td></tr>
+</table>
+
+<!-- K2 以降は計算後に追記する -->
+
+</main>
+</body>
+</html>
