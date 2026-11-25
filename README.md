@@ -7,6 +7,7 @@
 - `ES_Infinite_Dimensional_Backpropagation.pdf` — 出発点の論文（ES = BP、Stein の補題、2026-01）
 - `es_physics_notes.html` — 時空と重力（虚数単位 i の出どころ、光円錐、質量、重力、重力波、時間が 1 本である理由）
 - `es_forces_notes.html` — 力（光子、閉じ込め、ES = BP としての勾配フロー、弱い力、中性子の寿命）
+- `koide_notes.html` — Koide 公式（規則を計算前に固定し、クォーク・ニュートリノで検定 → 棄却）
 - `scripts/` — 各節の数値実験（Python 3 + numpy / scipy）
 
 ブラウザで HTML を開き、印刷（Ctrl+P）で PDF にできます（数式は KaTeX を CDN から読み込みます）。
