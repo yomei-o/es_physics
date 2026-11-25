@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光速と宇宙の年齢</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--fg:#1d1d1f;--muted:#5f6368;--bg:#ffffff;--line:#d9dce1;--accent:#2b5fa8;--ok:#1e7a3c;--ng:#b3261e;--warn:#8a5a00;--box:#f5f7fa}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.85;font-size:16px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 16px 4rem}
+h1{font-size:1.6rem;line-height:1.4;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
+h2{font-size:1.2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-top:2.6rem}
+h3{font-size:1.02rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;font-family:"Hiragino Sans","Yu Gothic",sans-serif;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:.35rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--box)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.box{background:var(--box);border-left:3px solid var(--accent);padding:.7rem 1rem;margin:1.2rem 0}
+.warn{border-left-color:var(--warn)}
+.ok{color:var(--ok);font-weight:bold}.ng{color:var(--ng);font-weight:bold}.mid{color:var(--warn);font-weight:bold}
+code{font-family:Consolas,"Courier New",monospace;font-size:.85em;background:var(--box);padding:0 .25em}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+ol.refs{font-size:.88rem}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}table,.box,.katex-display{break-inside:avoid}a{color:inherit;text-decoration:none}}
+@page{size:A4;margin:18mm 16mm}
+</style>
+</head>
+<body>
+<main>
+
+<h1>光速 × 宇宙の年齢 = 一定 ― 規約が主張に変わるところ</h1>
+<div class="sub">研究ノート（随時追記） ・ 初版 2026-11-24 ・ 大谷 + Claude ・ 姉妹編：<code>es_physics_notes.html</code>（時空と重力）、<code>es_forces_notes.html</code>（力）</div>
+
+<div class="box warn">
+<b>独立レビュー（2026-11-24）。</b> 別のエージェントが前提から検算した。C0、C2 の計量、C7 の \(p=4/(5+3w)\)、C9 の \(w_E=\beta/3\)、ノイズの式などは正しいと確認された。
+重大な指摘は 2 つ：(1) 「今の宇宙は \(p=0.975\)」はネットワーク時間では誤りで、正しくは \(p_{\rm loc}=1.054\)（C2 に訂正を追記）。(2) C10 の「どの数え方でも \(O(1)\)」は規格化の規約に依存する（C10 に訂正を追記）。
+ほかに 10 項目の小さな訂正を各節に反映した（「訂正」「レビューで追記」と明記）。
+</div>
+<div class="box warn">
+<b>このノートの位置づけ。</b> 姉妹編と同じく探索的な研究メモ。各節で <span class="ok">検証済み</span>／<span class="mid">解釈</span>／<span class="ng">未解決・否定的</span> を区別し、
+実行前に予測を書いてから計算する。外れた予測もそのまま残す。スクリプトは <code>es_physics/scripts/c*.py</code>（Python 3 + numpy のみ）。
+</div>
+
+<h2>0. 出発点：Gemini との対話の「\(c\cdot t=\text{const}\)」</h2>
+<p>対話（<code>Gemini_ctconst.pdf</code>）では、格子幅 \(\Delta x\)、1 ステップの時間 \(\Delta\tau\)、ステップ数 \(N\) を置いて</p>
+$$c=\frac{\Delta x}{\Delta\tau},\qquad t=N\Delta\tau\quad\Longrightarrow\quad c\,t=N\,\Delta x$$
+<p>とし、「\(N\Delta x\) が一定なら \(c\,t=\text{const}\)」と結論していた。これは恒等式に<b>仮定を 1 つ足しただけ</b>で、導出にはなっていない。
+また対話の最後で指摘されたとおり、時計と物差しの選び方（座標・単位系）を変えれば \(c\,t\) はいくらでも一定にできるので、そのままでは物理的な内容がない。</p>
+<div class="box">
+<b>この編の問い。</b> \(c\,t=\text{const}\) が<b>規約</b>（単位の選び方）にとどまるのはどんなときで、<b>検証できる主張</b>に変わるのはどんなときか。
+答えの見通し：<b>物差しを何に結びつけるか</b>で決まる。原子に結びつければ \(c\) は定義により一定。宇宙の膨張（共動座標）やネットワークのサイトに結びつけると、\(c\,t=\text{const}\) は「宇宙が等速膨張 \(a\propto t\) している」という観測で確かめられる主張になる。
+</div>
+
+<!-- ============================================================ -->
+<h2>C0. 規約としての \(c\,t=\text{const}\)：自由度は関数 1 個</h2>
+<p>宇宙時間 \(t\)（原子時計）と原子の物差しでは \(c\) は一定。新しい物差しを \(\ell(t)\) 倍、新しい時計の進みを \(dT=f(t)\,dt\) とすると、新しい単位での光速と年齢は</p>
+$$\tilde c=\frac{c}{\ell(t)\,f(t)},\qquad T=\int_0^t f\,dt' .$$
+<p>\(\tilde c\,T=K\) を要求すると \(\ell = c\int_0^t f\,/\,(K f)\)。任意の時計 \(f\) に対して物差し \(\ell\) が 1 つ決まるので、<b>規約としては常に実現できる</b>。</p>
+<ul>
+<li>時計はそのままで物差しだけ変える（\(f=1\)）：\(\ell\propto t\)。物差しが宇宙年齢に比例して伸びる単位系。</li>
+<li>物差しはそのままで時計だけ変える（\(\ell=1\)）：\(f'/f\) を解くと \(T\propto e^{ct/K}\) となり、\(t=0\) で \(T\ne0\)。
+<b>ビッグバンからの年齢 \(T\) を新しい時計で測る限り、時計の付け替えだけでは \(\tilde c\,T=\text{const}\) は作れない</b>（ビッグバンを \(T\to0\)、つまり \(t\to-\infty\) に押しやる必要がある）。<span class="ok">検証済み（解析）</span></li>
+</ul>
+<p>したがって \(c\,t=\text{const}\) の世界では、本質的に「物差しが宇宙と一緒に伸びる」ことになる。これが次節で共動座標に結びつく。</p>
+
+<!-- ============================================================ -->
+<h2>C1. 共動の物差しで測ると：ΛCDM で \(c\,t\) はいつ一定か（<code>scripts/c1_comoving_ct.py</code>）</h2>
+<p>銀河と一緒に伸びる物差し（共動座標）で光速を測ると \(c_{\rm com}=c/a(t)\)。すると</p>
+$$c_{\rm com}\,t=\frac{c\,t}{a(t)}=\text{const}\iff a\propto t\ \ (\text{等速膨張}),\qquad \frac{d}{dt}\frac{t}{a}=0\iff H\,t=1 .$$
+<p>これは単位の問題ではなく宇宙の膨張の仕方についての主張で、観測で検証できる。等速膨張宇宙は「\(R_h=ct\) 宇宙」（Melia）として既に提案されている。
+局所的には \(a\propto t^{\,n}\)、\(n=Ht\) と書け、\(c_{\rm com}\propto t^{-n}\)。</p>
+
+<p><b>事前予測：</b> P1 \(H_0t_0\approx0.95\)、\(Ht=1\) は未来の \(t\approx17\) Gyr。P2 過去 2 Gyr の \(ct/a\) の変化は 1% 未満。
+P3 距離指数の差（ΛCDM と平坦な等速膨張）は \(z&lt;1.5\) で 0.15 mag 未満。（Planck 2018：\(H_0=67.4,\ \Omega_m=0.315\)）</p>
+
+<table>
+<tr><th>量</th><th>結果</th><th>予測との比較</th></tr>
+<tr><td>\(H_0t_0\)</td><td class="n">0.9506（\(t_0=13.79\) Gyr）</td><td><span class="ok">一致</span></td></tr>
+<tr><td>\(Ht=1\) の時刻</td><td class="n">15.05 Gyr（今から +1.26 Gyr、\(a=1.089\)）</td><td><span class="ng">外れ</span>（予測 17 Gyr。思ったより近い）</td></tr>
+<tr><td>加速膨張の開始（\(\ddot a=0\)）</td><td class="n">7.69 Gyr（\(z=0.632\)）</td><td>参考</td></tr>
+<tr><td>過去 2 Gyr の \(ct/a\) の変化</td><td class="n">1.37%</td><td><span class="ng">外れ</span>（予測 &lt;1%）</td></tr>
+<tr><td>距離指数の差（同じ \(H_0\)）</td><td class="n">最大 0.21 mag（\(z\approx1\)）</td><td><span class="ng">外れ</span></td></tr>
+<tr><td>同（定数オフセットを除く。SN 解析では絶対等級が自由パラメータ。\(z\le1.5\) の 6 点の平均を引いただけで、最適化はしていない）</td><td class="n">最大 0.11 mag</td><td><span class="ok">一致</span></td></tr>
+</table>
+
+<table>
+<tr><th>時刻</th><th>\(z\)</th><th>\(ct/a\)（最大値との比）</th></tr>
+<tr><td>今 − 10 Gyr</td><td class="n">1.71</td><td class="n">0.743</td></tr>
+<tr><td>今 − 5 Gyr</td><td class="n">0.47</td><td class="n">0.936</td></tr>
+<tr><td>今 − 2 Gyr</td><td class="n">0.15</td><td class="n">0.984</td></tr>
+<tr><td><b>今</b></td><td class="n">0</td><td class="n"><b>0.9978</b></td></tr>
+<tr><td>今 + 1 Gyr</td><td class="n">−0.07</td><td class="n">0.99991</td></tr>
+<tr><td>今 + 5 Gyr</td><td class="n">−0.28</td><td class="n">0.983</td></tr>
+</table>
+
+<p>局所的な指数 \(n=Ht\) の歴史：放射優勢 0.50 → 物質優勢 0.67 → 今 0.95 → 1.26 Gyr 後に 1 → 以後 \(\infty\)（de Sitter）。</p>
+
+<div class="box">
+<b>発見（ただし既知の偶然の言い換え）。</b> 共動の物差しで測った \(c\cdot t\) は、宇宙の歴史全体では一定ではない（初期は \(\propto t^{1/2}\) で増える）。
+しかし<b>ちょうど今、最大値（停留点）の 0.2% 以内にいる</b>。停留点では 1 次の変化が消えるので、「今の宇宙では \(c\,t=\text{const}\) が近似的に成り立っている」と言える。
+これは「\(H_0t_0\approx1\) という偶然」（Avelino &amp; Kirshner 2016 "The dimensionless age of the Universe: a riddle for our time" など。"synchronicity" という呼び名は別の著者のものかもしれない、要確認）と同じ事実の言い換えであり、新しい観測事実ではない。<span class="mid">解釈</span><br>
+平坦な ΛCDM では \(H t=\tfrac{2}{3\sqrt{\Omega_\Lambda}}\,\mathrm{arsinh}\sqrt{\Omega_\Lambda/\Omega_m}\) なので、\(Ht=1\iff\Omega_\Lambda=0.737\)。
+加速の開始（\(\Omega_\Lambda=1/3\)）、物質と暗黒エネルギーが等量（1/2）、\(c\,t\) の停留点（0.737）はすべて「\(\Lambda\) が効き始める時期」に集まっており、今（0.685）はその中にいる。
+<b>「\(c\,t\) がちょうど今一定」という偶然は、宇宙定数の偶然問題（なぜ今 \(\Omega_\Lambda\sim\Omega_m\) か）と同じもの</b>である。
+
+</div>
+<p>全歴史で \(a\propto t\) を主張する \(R_h=ct\) 宇宙は、超新星だけなら形の差 0.1 mag 程度でかなり合うが、BAO・CMB・元素合成を合わせると ΛCDM に大きく劣るとされている（文献の評価、ここでは未検算）。
+<span class="ng">否定的</span>：「<b>銀河の間隔を物差しにして</b> \(c\,t=\text{const}\) が常に成り立つ」という読み方は観測と合わない。</p>
+<div class="box warn">
+<b>何が否定されたのか（混同しないための注）。</b> C0 の座標変換としての \(c\,t=\text{const}\) は、物差しが現実の物体と結びついていないので、真でも偽でもない（物理的に何も言わない）。
+この節で否定されたのはそれとは別の主張で、物差しを「2 つの銀河の間隔 \(D\)」に結びつけたもの、すなわち<b>無次元量</b> \(c\,t/D\) が一定、という主張である。
+無次元量はどの座標系でも同じ値になるので、この主張は座標系によらず検証でき、実際には 10 Gyr 前は今の 0.74 倍だった。<br>
+「無次元量は変わらない」には 2 つの意味がある：(1) <b>座標系を変えても</b>値が変わらない（すべての無次元量で成立）、(2) <b>時間が経っても</b>値が変わらない（\(\alpha\) などの一部だけ）。
+\(c\,t/D\)、Dirac の巨大数 \(c\,t/r_e\)、宇宙背景放射の温度と電子質量の比などは (1) を満たすが時間とともに変わる。\(c\,t=\text{const}\) の座標系でもこれらは同じだけ変わり、変わるのは「宇宙が膨張する」と見るか「原子が縮む（質量が増える）」と見るかという説明だけである。
+</div>
+
+<!-- ============================================================ -->
+<h2>C2. ネットワークの時計が一様に遅くなること ＝ 宇宙膨張（<code>scripts/c3_network_clock_cosmology.py</code>）</h2>
+<p>姉妹編 §8 の同時更新ルールでは、クロックレート \(\nu\) の場所で</p>
+<table>
+<tr><th>量</th><th>ネットワーク単位（サイト・ティック）</th></tr>
+<tr><td>質量・時計の振動数</td><td>\(\propto\nu\) / ティック</td></tr>
+<tr><td>光の伝播</td><td>\(c_{\rm net}\propto\nu^2\) サイト / ティック</td></tr>
+<tr><td>物差し（束縛状態の大きさ）</td><td>\(\propto\nu\) サイト</td></tr>
+<tr><td>局所的に測った光速</td><td>\(\nu^2\cdot\nu^{-1}/\nu=\) 一定</td></tr>
+</table>
+<p>だった。\(\nu\) が空間的に一様で時間（ティック数 \(T\)）だけに依存するとき、固有時は \(d\tau=\nu\,dT\)、1 サイトの物理的な長さは \(1/\nu\)。つまり</p>
+$$ds^2=-\nu(T)^2dT^2+\nu(T)^{-2}d\mathbf x^2\quad\Longrightarrow\quad a=\frac1\nu,\qquad d\tau=\nu\,dT .$$
+<p><b>ネットワーク全体の時計が遅くなることは、宇宙の膨張そのもの</b>になる。局所的な無次元量（スペクトル、\(\alpha\)、局所の光速）は何も変わらず、
+変わるのは離れた時刻どうしの比較、つまり<b>赤方偏移</b>だけである（格子は並進不変なので光の波数はサイト単位で保存し、原子の物差しは \(\nu\) サイトなので、波長は物差し単位で \(1/\nu=a\) に比例して伸びる）。</p>
+<div class="box">
+対話の中の主張「スペクトルなどの無次元量が変わらないことから、光速が変わらないと結論するのは飛躍だ」は、この枠組みでは正しい。
+ネットワーク単位の光速 \(c_{\rm net}=\nu^2\) は局所的な観測では見えずに変化できる。ただしその変化は隠れたままにはならず、<b>宇宙膨張（ハッブルの赤方偏移）としてすでに観測されている</b>。<span class="mid">解釈</span>
+</div>
+
+<p>ネットワーク単位で \(c_{\rm net}\,T=\text{const}\) を要求すると \(\nu^2\propto1/T\)。より一般に \(c_{\rm net}\propto T^{-p}\) とすると</p>
+$$\tau\propto T^{1-p/2},\qquad a\propto T^{p/2}\ \Longrightarrow\ a\propto\tau^{\,n},\quad n=\frac{p}{2-p}.$$
+<p><b>事前予測：</b> 上式。\(p=1\) で \(n=1\)（等速膨張＝C1 と同じ）、\(p=2\) で de Sitter。</p>
+<table>
+<tr><th>\(p\)</th><th>フィットした \(n\)</th><th>予測 \(p/(2-p)\)</th><th>宇宙の時代</th></tr>
+<tr><td class="n">0.5</td><td class="n">0.3333</td><td class="n">0.3333</td><td>（硬い物質）</td></tr>
+<tr><td class="n">2/3</td><td class="n">0.5000</td><td class="n">0.5000</td><td>放射優勢</td></tr>
+<tr><td class="n">0.8</td><td class="n">0.6667</td><td class="n">0.6667</td><td>物質優勢</td></tr>
+<tr><td class="n">1</td><td class="n">0.9999</td><td class="n">1</td><td>等速膨張 \(c\,t=\text{const}\)</td></tr>
+<tr><td class="n">1.5</td><td class="n">2.977</td><td class="n">3</td><td>加速膨張</td></tr>
+<tr><td class="n">1.9</td><td class="n">12.05</td><td class="n">19</td><td>（\(\tau\) の積分定数のため漸近が遅く、範囲内でフィットが合わない）</td></tr>
+<tr><td class="n">2</td><td colspan="2">\(H=1.0000\)（一定）</td><td>de Sitter（ΛCDM の未来）</td></tr>
+</table>
+<p><span class="ok">検証済み（数値＋解析）</span>：単一のべき乗則についての辞書として。</p>
+<div class="box warn">
+<b>訂正（独立レビューによる指摘、<code>scripts/c18_network_time_now.py</code>）。</b> 初版ではここに「今の宇宙（\(n=Ht=0.9506\)）は \(p=2n/(1+n)=0.975\)」と書いたが、この換算は<b>全歴史が 1 つのべき乗則のときしか成り立たない</b>。
+ネットワーク時間 \(T=\int a\,d\tau\) での局所指数は \(p_{\rm loc}=-d\ln c_{\rm net}/d\ln T=2HT/a\) であり、ΛCDM では次のとおり。
+<table>
+<tr><th>\(z\)</th><th class="n">1000</th><th class="n">10</th><th class="n">1</th><th class="n">0.5</th><th class="n">0.2</th><th class="n">0（今）</th><th class="n">−0.3</th></tr>
+<tr><td>\(p_{\rm loc}\)</td><td class="n">0.755</td><td class="n">0.800</td><td class="n">0.853</td><td class="n">0.909</td><td class="n">0.980</td><td class="n"><b>1.054</b></td><td class="n">1.230</td></tr>
+</table>
+<p>今は \(p_{\rm loc}=1.054&gt;1\)（加速膨張中、\(q_0=-0.53\) と整合）で、<b>ネットワーク時間で \(c_{\rm net}T\) が停留した（\(p_{\rm loc}=1\)）のは約 1.8 Gyr 前</b>（\(\tau=11.98\) Gyr、\(z=0.138\)）。
+C1 の「あと 1.26 Gyr」は宇宙時間で測った \(c_{\rm com}t\) の停留点で、<b>別の量</b>である。両者は単一のべき乗則のときだけ一致する。
+以下の節で「今の宇宙は \(p\approx0.975\)」と書いていた箇所は、この表の値に読み替えて訂正した。
+</div>
+<p>注意：この対応は §8 の同時更新ルール（\(c\propto\nu^2\)）に依存しており、そのルールは \(\gamma=1\) から逆算して見つけたものだった。
+さらに §8 は静的な弱い場から得たルールなので、時間変化する一様な \(\nu(T)\) に使うのは断熱近似（\(\nu\) が振動の周期に比べてゆっくり変わる）を仮定した外挿である（レビューで追記）。</p>
+<p><b>断熱性の条件の中身（追記）：</b> 断熱パラメータ \(|\dot\nu|/(M_0\nu^2)\) は、辞書で訳すと \(H/(mc^2/\hbar)\)（ハッブル率 ÷ 質量の振動数）そのもので、宇宙論の「\(H\ll m\) なら粒子は生成されない」という条件と同じ。
+放射優勢期 \(H=1/2t\) で辞書が破れるのは \(t\approx\hbar/(2mc^2)\)：電子 \(6\times10^{-22}\) s、陽子 \(4\times10^{-25}\) s、125 GeV で \(3\times10^{-27}\) s、Planck 質量で \(3\times10^{-44}\) s。
+今は電子で \(H\hbar/(m_ec^2)=3\times10^{-39}\) で、断熱近似は十分に成り立つ。破れる時期にはネットワークでも粒子生成（モードの混合）が起きる（C22 で計算）。</p>
+
+<!-- ============================================================ -->
+<h2>C3. ES のステップ幅としての \(c\,t=\text{const}\)（<code>scripts/c2_es_schedule.py</code>）</h2>
+<p>ES = BP の側では、1 ティックあたりの更新の大きさは学習率 \(\eta_t\) で、情報の到達距離は拡散的に（到達距離\(^2\propto\sum\eta\)）伸びる。\(c\,t=\text{const}\) は \(\eta_t\propto1/t\)、
+すなわち確率近似の Robbins–Monro スケジュール（\(\sum\eta=\infty,\ \sum\eta^2&lt;\infty\)）の代表例にあたる。</p>
+<p>設定：600 体の鎖。左端のエージェントを 1 に固定（信号源）、他は 0 から開始。各エージェントは局所損失
+\(\ell_i=\tfrac12[(x-\theta_{i-1})^2+(x-\theta_{i+1})^2]\) を ES（Stein 推定、母集団 4、\(\sigma=0.1\)、微分なし）で下げる。
+\(\eta_t=0.4/(1+t/10)^p\)。同じスケジュールの正確な勾配（BP）でも走らせ、到達距離（BP で \(\theta>0.05\) の最遠サイト）とノイズ（ES と BP の差の rms）を測った。</p>
+<p><b>事前予測：</b> 到達距離\(^2\propto\sum\eta\)。\(p=0\) で \(\sqrt t\)、0.5 で \(t^{1/4}\)、1 で \(\sqrt{\ln t}\)、2 で頭打ち。\(p=1\) は「到達距離が発散する最も速い減衰」（臨界）。ノイズは \(p\) が大きいほど小さい。</p>
+<table>
+<tr><th>\(p\)</th><th>到達 / ノイズ \(t=10^2\)</th><th>\(10^3\)</th><th>\(10^4\)</th><th>\(10^5\)</th><th>\(\sum\eta\)</th></tr>
+<tr><td class="n">0</td><td class="n">17 / 0.203</td><td class="n">55 / 0.668</td><td class="n">175 / 0.806</td><td class="n">599 / 2.04</td><td class="n">40000</td></tr>
+<tr><td class="n">0.5</td><td class="n">11 / 0.038</td><td class="n">23 / 0.167</td><td class="n">43 / 0.074</td><td class="n">78 / 0.051</td><td class="n">792</td></tr>
+<tr><td class="n"><b>1</b></td><td class="n">8 / 0.022</td><td class="n">11 / 0.022</td><td class="n">14 / 0.014</td><td class="n">16 / 0.023</td><td class="n">36.6</td></tr>
+<tr><td class="n">1.5</td><td class="n">6 / 0.014</td><td class="n">7 / 0.011</td><td class="n">7 / 0.012</td><td class="n">7 / 0.012</td><td class="n">7.7</td></tr>
+<tr><td class="n">2</td><td class="n">5 / 0.031</td><td class="n">5 / 0.026</td><td class="n">5 / 0.026</td><td class="n">5 / 0.026</td><td class="n">3.8</td></tr>
+</table>
+<p>到達距離\(^2/\sum\eta\) はすべての \(p\)・時刻で 6.6–9.0 に収まり、拡散の法則が成り立った。\(p\le1\) では到達距離が伸び続け、\(p\ge1.5\) では早い段階で止まった。<span class="ok">予測どおり</span></p>
+<p>ノイズは予測と違い、\(p\) の順にきれいには並ばなかった。<span class="ng">予測外れ</span>
+\(p=0\) は乗法的な ES ノイズと大きな刻みのため増え続けた（安定限界 0.5 に近い）。\(p\ge1.5\) ではノイズが減らずにその値で<b>凍結</b>した。
+更新が止まるので、誤差も消されずに残る。</p>
+<p><b>追記（頑健性、<code>scripts/c16_c2_seeds.py</code>）：</b> 乱数のシードを 5 つ変えて \(t=10^5\) のノイズを測り直した。
+\(p=0\)：\(1.77\pm0.66\)、\(p=0.5\)：\(0.057\pm0.007\)、\(p=1\)：\(0.040\pm0.025\)、\(p=1.5\)：\(0.031\pm0.023\)、\(p=2\)：\(0.034\pm0.027\)。
+\(p\ge1\) どうしの差はシードによるばらつきの範囲で、上の表の並び（1 シード）は偶然だった。到達範囲が 5–16 サイトと狭く、そこに残る長波長の遺物・凍結モード（C11）がノイズを決めるため、ばらつきが大きい。
+<span class="ok">結論の修正</span>：「ノイズは \(p\) の順に並ぶ」も「並ばない」も言えず、正しくは「\(p\le0.5\) と \(p\ge1\) は分かれるが、\(p\ge1\) の中では区別できない」。</p>
+
+<div class="box">
+<b>宇宙論との対応。</b> C2 の辞書（\(c_{\rm net}\propto T^{-p}\)）で、\(p>1\) は加速膨張、\(p&lt;1\) は減速膨張だった。
+<ul>
+<li>\(p&lt;1\)（減速膨張）：過去に向かって \(\sum c_{\rm net}\) が有限 → <b>地平線問題</b>。未来には到達距離が伸び続ける。</li>
+<li>\(p>1\)（加速膨張）：未来の到達距離が有限 → <b>事象の地平線</b>。表の \(p=1.5,2\) で到達距離が止まったのはこれにあたる。ノイズが凍結したのは、インフレーション中に地平線の外に出たゆらぎが凍結することと同じ形をしている。</li>
+<li>\(p=1\)（\(c\,t=\text{const}\)）：過去にも未来にも対数で発散。地平線問題も事象の地平線もない<b>ちょうど境目</b>（\(\ddot a=0\) の等速膨張）。</li>
+</ul>
+<span class="mid">解釈</span>（数式の対応は正確。ES の集団と宇宙論を同一視するのは仮説）
+</div>
+
+<!-- ============================================================ -->
+<h2>C4. 3 つの見方の対応表</h2>
+<table>
+<tr><th>\(p\)</th><th>ES：ステップ幅 \(\eta\propto t^{-p}\)</th><th>ネットワーク：\(c_{\rm net}\propto T^{-p}\)</th><th>宇宙論：\(a\propto\tau^{p/(2-p)}\)</th></tr>
+<tr><td class="n">0</td><td>一定の学習率。ノイズの底が残る</td><td>時計一定</td><td>静止宇宙</td></tr>
+<tr><td class="n">2/3, 0.8</td><td>Robbins–Monro の範囲（\(1/2&lt;p\le1\)）</td><td>—</td><td>放射優勢・物質優勢。地平線問題あり</td></tr>
+<tr><td class="n"><b>1</b></td><td>\(1/t\)：強凸問題で最適な速さを与える古典的スケジュール</td><td>\(c\,T=\text{const}\)（ΛCDM では約 1.8 Gyr 前に通過）</td><td>等速膨張</td></tr>
+<tr><td class="n">1.054</td><td>—</td><td><b>今の宇宙</b>（局所指数、C2 の訂正参照）</td><td>加速膨張の初期</td></tr>
+<tr><td class="n">&gt;1</td><td>\(\sum\eta&lt;\infty\)：途中で止まる。誤差が凍結</td><td>—</td><td>加速膨張、事象の地平線</td></tr>
+<tr><td class="n">2</td><td>—</td><td>—</td><td>de Sitter（ΛCDM の遠い未来）</td></tr>
+</table>
+<p>補足：\(\eta\propto1/t\) は対数時間 \(s=\ln t\) では一定の学習率になる（\(d\theta/ds=-\eta_0\nabla L\)）。ノイズの温度はそのとき \(e^{-s}\) で冷える。
+宇宙論の側でも、等速膨張は \(\tau=e^{s}\) で静止宇宙に共形的に写り（空の Milne 宇宙は開いた空間でミンコフスキー時空そのもの。ネットワークの \(a\propto t\) や \(R_h=ct\) 宇宙は平坦で \(w=-1/3\) の物質を要し、ミンコフスキーではない。共形写像はどちらでも成り立つ）、そこでは質量が \(e^{s}\) で増える見方になる（Wetterich の「膨張しない宇宙」、Hoyle–Narlikar の変化する質量と同型）。
+<b>\(c\,t=\text{const}\) の座標系 ＝ 力学が定常に見え、温度/質量比だけが指数的に下がる座標系</b>という点で、ES 側と宇宙論側が同じ形をしている。<span class="mid">解釈</span></p>
+
+<!-- ============================================================ -->
+<h2>C5. 対数時間で見る：緩和と冷却の競争（<code>scripts/c4_logtime_rate.py</code>）</h2>
+<p>ここからは「\(c\,t=\text{const}\) の座標系（対数時間 \(s=\ln t\)）で見ると単純になる構造」を探す。どちらの座標系でも観測量は同じなので、探すのは新しい物理ではなく、<b>単純に見える形</b>である。</p>
+<p>2 次の損失 \(\ell=\tfrac\lambda2x^2\) を ES（Stein 推定、母集団 \(M=8\)、\(\sigma=0.1\)、初期値 \(x_0=1\)）で、\(\eta=\eta_0/(t+t_0)\) として下げる。\(s\) で書くと</p>
+$$\frac{dx}{ds}=-\eta_0\lambda\,x+(\text{パワーが }e^{-s}\text{ で減るノイズ}),\qquad
+\langle x^2\rangle\approx x_0^2\,e^{-2\eta_0\lambda s}+\frac{\eta_0^2G}{2\eta_0\lambda-1}\,e^{-s},$$
+<p>すなわち <b>1 e-fold あたりの緩和率 \(2\eta_0\lambda\)</b> と <b>冷却率 1</b> の 2 つの指数関数の競争になる（\(G=15\lambda^2\sigma^2/4M\) は \(x=0\) での ES ノイズの強さ）。\(t\) で見るとばらばらのべき乗則だが、\(s\) で見ると固有値の比較にすぎない。</p>
+<p><b>事前予測：</b> \(\langle x^2\rangle\propto t^{-\min(1,2\eta_0\lambda)}\)、\(\eta_0\lambda=1/2\) で鋭く切り替わる。\(\eta_0\lambda>1/2\) で \(t\langle x^2\rangle\to\eta_0^2G/(2\eta_0\lambda-1)\)。</p>
+<table>
+<tr><th>\(\eta_0\lambda\)</th><th>傾き（\(10^3\)–\(10^5\)）</th><th>予測</th><th>\(\langle x^2\rangle\) / 遺物の予測 \((t/t_0)^{-2\eta_0\lambda}\)</th><th>\(t\langle x^2\rangle\) / 熱的な予測</th></tr>
+<tr><td class="n">0.1</td><td class="n">−0.200</td><td class="n">−0.2</td><td class="n">1.01</td><td>—</td></tr>
+<tr><td class="n">0.3</td><td class="n">−0.600</td><td class="n">−0.6</td><td class="n">1.03</td><td>—</td></tr>
+<tr><td class="n">0.5</td><td class="n">−1.000</td><td class="n">−1.0</td><td class="n">1.02</td><td>—</td></tr>
+<tr><td class="n">0.6</td><td class="n">−1.198</td><td class="n">−1.0</td><td class="n">1.04</td><td class="n">196</td></tr>
+<tr><td class="n">1</td><td class="n">−1.644</td><td class="n">−1.0</td><td class="n">5.4</td><td class="n">1.15</td></tr>
+<tr><td class="n">2</td><td class="n">−0.986</td><td class="n">−1.0</td><td>—</td><td class="n">1.09</td></tr>
+<tr><td class="n">4</td><td class="n">−1.008</td><td class="n">−1.0</td><td>—</td><td class="n">1.01</td></tr>
+</table>
+<p>両側の極限は予測どおり（遺物側 1–4%、熱的側 1–9%）。<span class="ok">検証済み</span>
+しかし \(\eta_0\lambda=0.6\)–1 では \(t=10^5\) でもまだ遺物側にいた。切り替わる時刻は \((x_0^2/G)^{1/(2\eta_0\lambda-1)}\) 程度で、1/2 に近づくと発散する。
+「1/2 で鋭く切り替わる」のは無限時間の指数だけで、有限時間では境界が時間とともに動く。<span class="ng">予測の一部が外れ</span></p>
+<div class="box">
+<b>宇宙論との対応。</b> 1 e-fold あたりの率で比べるのは、宇宙論の「反応率 \(\Gamma\) と膨張率 \(H\) の比較」（脱結合・凍結の条件 \(\Gamma/H\sim1\)）と同じ形である。
+\(\eta_0\lambda&lt;1/2\) のモードは初期値を覚えている「遺物」、\(>1/2\) のモードはノイズの温度に追随する「熱平衡」。<span class="mid">解釈</span><br>
+C3 の鎖でノイズが \(p\) の順に並ばなかった理由の候補：\(\eta\approx4/t\) なので、波長が約 18 サイトより長いモードは \(\eta_0\lambda&lt;1/2\) となり、初期のノイズを遺物として抱え続ける。（未検証）
+</div>
+<p>既知との関係：\(\eta_0/t\) の SGD が \(\eta_0\lambda>1/2\) のときだけ最適な速さ \(1/t\) を達成することは、確率近似で古典的に知られている（Nemirovski et al. 2009 が感度の問題として指摘）。</p>
+
+<h2>C6. 加速側の凍結スペクトル（<code>scripts/c5_freeze_spectrum.py</code>）</h2>
+<p>\(p>1\) では 1 e-fold あたりの率 \(\eta t\lambda\propto t^{1-p}\lambda\) が下がり続け、モードは \(\lambda\) の小さい順（長波長から）に凍結する。インフレーションで大きなスケールから先に地平線の外に出るのと同じ順序である。
+\(x_0=0\) から始めると凍結値は厳密に</p>
+$$V_\infty=G\,\eta_0^2\!\int t^{-2p}\exp\!\Big(-\frac{2\lambda\eta_0t^{1-p}}{p-1}\Big)dt\ \propto\ G\,\lambda^{-2-\frac1{p-1}}\ \xrightarrow{\ \text{ES}:\ G\propto\lambda^2\ }\ \lambda^{-\frac1{p-1}} .$$
+<p>\(\lambda=k^2\) とすると \(V\propto k^{-2/(p-1)}\)。<b>3 次元でスケール不変（\(V\propto k^{-3}\)）になるのは \(p=5/3\)</b>、宇宙論の辞書では \(a\propto\tau^5\) のべき乗則インフレーションにあたる。</p>
+<p><b>事前予測：</b> 傾き \(d\ln V/d\ln\lambda=-2\ (p=1.5),\ -1.5\ (p=5/3),\ -1\ (p=2)\)。</p>
+<table>
+<tr><th>\(p\)</th><th>測定した傾き</th><th>予測</th><th>凍結の度合い \(V(T/2)/V(T)\)</th></tr>
+<tr><td class="n">1.5</td><td class="n">−1.77</td><td class="n">−2</td><td class="n">1.03–1.22（大きい \(\lambda\) がまだ凍結途中）</td></tr>
+<tr><td class="n">5/3</td><td class="n">−1.43</td><td class="n">−1.5</td><td class="n">1.01–1.08</td></tr>
+<tr><td class="n">2</td><td class="n">−0.985</td><td class="n">−1</td><td class="n">1.00–1.03</td></tr>
+</table>
+<p>凍結が完了しているほど予測に近い。<span class="ok">検証済み</span>（\(p=1.5\) は有限時間のずれ）</p>
+<p>注意：この指数はノイズの形に依存する。加法的な白色ノイズ（\(G\) が \(\lambda\) によらない）なら \(V\propto\lambda^{-2-1/(p-1)}\) で、どの \(p>1\) でも 3 次元のスケール不変には届かない。
+対称な摂動（\(\pm\epsilon\) の対）を使う ES では 2 次の損失で \(\epsilon^3\) の項が消えて \(x=0\) でのノイズが無くなり、凍結値そのものが変わる。
+「\(p=5/3\) でスケール不変」は<b>素朴な ES のノイズに固有</b>の結果である。<b>エージェントのネットワークでは成り立たない（C18 で訂正）。</b>また実際のインフレーションの機構（波長が引き伸ばされる 2 階の力学と量子ゆらぎ）とは別物で、形が似ているだけ。<span class="mid">解釈</span></p>
+
+<h2>C7. ネットワークの時計で書いたフリードマン方程式（<code>scripts/c6_friedmann_ticks.py</code>）</h2>
+<p>C2 の辞書 \(a=1/\nu,\ d\tau=\nu\,dT\) で \(H=-\dot\nu/\nu^2\)（ドットはティック微分）。フリードマン方程式と \(\rho\propto a^{-3(1+w)}\) から</p>
+$$\Big(\frac{d\nu}{dT}\Big)^2=\frac{8\pi G}{3}\,\nu^{4}\rho\ \propto\ \nu^{7+3w}\quad\Longrightarrow\quad c_{\rm net}=\nu^2\propto T^{-p},\qquad p=\frac{4}{5+3w}.$$
+<table>
+<tr><th>\(w\)</th><th>\(p\)（数値積分）</th><th>\(4/(5+3w)\)</th><th>中身</th></tr>
+<tr><td class="n">1</td><td class="n">0.5000</td><td class="n">0.5</td><td>硬い物質（音速 = 光速）</td></tr>
+<tr><td class="n">1/3</td><td class="n">0.6667</td><td class="n">2/3</td><td>放射</td></tr>
+<tr><td class="n">0</td><td class="n">0.8000</td><td class="n">0.8</td><td>物質</td></tr>
+<tr><td class="n">−1/3</td><td class="n">1.0000</td><td class="n">1</td><td>曲率・ひも気体：\(c\,t=\text{const}\)</td></tr>
+<tr><td class="n">−0.6</td><td class="n">1.2500</td><td class="n">1.25</td><td>暗黒エネルギー型</td></tr>
+<tr><td class="n">−1</td><td class="n">2.0000</td><td class="n">2</td><td>宇宙定数</td></tr>
+</table>
+<p><span class="ok">検証済み</span>（単一成分の宇宙について）。今の宇宙は C2 の訂正のとおり局所指数 \(p_{\rm loc}=1.054\)、瞬間の実効的な状態方程式は \(w_{\rm eff}=-0.685\)（初版の「\(w=-0.30\)」は年齢で平均した指数から出したもので、状態方程式ではなかった。訂正）。</p>
+<div class="box">
+<b>この座標系で見える対応：Robbins–Monro の条件 ＝ 普通の物質の条件。</b> ES のステップ幅を \(\eta=c_{\rm net}\) とみなすと
+（注：この同一視は定性的。C3 の ES は拡散的で到達距離\(^2\propto\sum\eta\)、宇宙論の地平線は弾道的で \(\int c_{\rm net}dT\)。発散するかどうかの判定は平方根を取っても変わらないので対応は残るが、距離の量的な対応は成り立たない）
+<ul>
+<li>\(\sum\eta=\infty\)（どこまでも学習が届く）\(\iff p\le1\iff w\ge-1/3\)：<b>強いエネルギー条件</b>（\(\rho+3P\ge0\)、減速膨張、事象の地平線なし）。</li>
+<li>\(\sum\eta^2&lt;\infty\)（ノイズの累積が有限）\(\iff p>1/2\iff w&lt;1\)：<b>音速が光速より小さい</b>。\(\sum c_{\rm net}^2\,dT=\int d\tau/a^3\) は、一様な自由スカラー場（\(\dot\phi\propto a^{-3}\)）が動く総量に等しい。</li>
+</ul>
+確率近似の<b>古典的な十分条件</b>の範囲 \(1/2&lt;p\le1\) が、<b>因果的で減速膨張を起こす物質 \(-1/3\le w&lt;1\)</b> とちょうど一致する。
+（訂正：初版は「収束する範囲」と書いたが、Robbins–Monro の条件は十分条件で必要条件ではない。強凸の問題では \(0&lt;p\le1/2\) でも分散 \(\approx\eta G/2\lambda\) は 0 に向かう。）両端（\(p=1/2\) と \(w=1\)、\(p=1\) と \(w=-1/3\)）もどちらも境目どうしで対応している。
+暗黒エネルギーが支配すると \(p\to2\) で \(\sum\eta&lt;\infty\)：宇宙は「学習が途中で止まる」スケジュールに入る。<span class="mid">解釈</span>（代数は正確。\(\eta=c_{\rm net}\) の同一視と §8 のルールに依存）
+</div>
+<p>補足：適応的な最適化手法は特定の \(w\) を選ぶ。たとえば AdaGrad はノイズが支配的なとき \(\eta\propto(\sum g^2)^{-1/2}\propto t^{-1/2}\)、つまり \(p=1/2\iff w=1\)（硬い物質）の境目にいる。強凸問題で最適な \(\eta=1/(\lambda t)\) は \(w=-1/3\)。（解析のみ）</p>
+
+<h2>C8. Dirac の巨大数仮説はどの座標系でも救えない（<code>scripts/c7_dirac_lnh.py</code>）</h2>
+<p>Dirac (1937) は \(N_1=e^2/(4\pi\varepsilon_0Gm_pm_e)\) と \(N_2=ct_0/r_e\)（宇宙年齢を電子の古典半径の光の通過時間で数えたもの）がともに \(10^{40}\) 程度なのは偶然ではなく、両方とも \(t\) に比例すると考えた。
+どちらも<b>無次元量</b>なので、\(c\,t=\text{const}\) の座標系を含め、どの座標系に移っても主張の内容は変わらない。</p>
+<p><b>事前予測：</b> \(N_1\sim2\times10^{39},\ N_2\sim5\times10^{40}\)。仮説は \(\dot G/G=-1/t_0\approx-7\times10^{-11}\)/年を要求し、月レーザー測距（\(\sim10^{-13}\)/年）と 100σ 以上で矛盾。</p>
+<p>結果：\(N_1=2.27\times10^{39}\)、\(N_2=4.63\times10^{40}\)（比 20）。要求値 \(-7.25\times10^{-11}\)/年に対し、月レーザー測距 \((7.1\pm7.6)\times10^{-14}\)/年（値は記憶による）で <b>約 950σ</b>。
+\(N_1\propto t^k\) とすると \(k=-(\dot G/G)t_0=-(0.98\pm1.05)\times10^{-3}\)、2σ で \(-3.1\times10^{-3}&lt;k&lt;1.1\times10^{-3}\)（初版の「\(|k|&lt;0.002\)」はレビューで訂正）。<span class="ng">否定的</span>（予測どおり）</p>
+<p>意味：\(N_2\)（宇宙年齢 ÷ 原子の時間）は確かに増えている。これは C1 の「時間とともに変わる無次元量」の例。一方 \(N_1\)（電気力 ÷ 重力）は変わっていない。
+\(N_2\approx N_1\) に近いのは今の時代に観測者がいる理由（星の寿命が \(N_1\) で決まる、Dicke 1961）で説明されるのが標準的。</p>
+
+<h2>C9. 大域ティックがあったら：ティックのエネルギーは \(c\,t=\text{const}\) 成分（<code>scripts/c9_tick_energy.py</code>）</h2>
+<p>姉妹編 §11 では「非同期 → 全体の時計なし → ハミルトニアン拘束」だった。逆に、ネットワークに全体で共通のティック \(T\) が実在したら何が起きるか。
+一様な宇宙（ミニ超空間）の作用で、ラプスを時間ゲージ \(N=a^\beta\) に固定する（ネットワークの時計は \(N=\nu=1/a\)、つまり \(\beta=-1\)）：</p>
+$$L=-\frac{3}{8\pi G}\,\frac{a\dot a^2}{N}-N a^3\rho,\qquad E=-\frac{3}{8\pi G}a^{1-\beta}\dot a^2+a^{3+\beta}\rho=\text{const}.$$
+<p>\(T\) が陽に現れないので \(E\) は自動的に保存し、一般相対論のフリードマン方程式は拘束 \(E=0\) にあたる。\(E\ne0\) を許すと</p>
+$$H^2=\frac{8\pi G}{3}\big(\rho-E\,a^{-(3+\beta)}\big)\quad\Longrightarrow\quad E\ \text{は}\ w_E=\beta/3\ \text{の流体}.$$
+<p><b>事前予測：</b> オイラー–ラグランジュ方程式を数値積分し、\(H^2-\rho\) の \(a\) 依存から \(w_E=\beta/3\)。</p>
+<table>
+<tr><th>時間ゲージ</th><th>\(\beta\)</th><th>\(w_E\)（数値）</th><th>予測</th><th>既知の対応</th></tr>
+<tr><td>4 次元体積（単峰重力）</td><td class="n">−3</td><td class="n">−1.0000</td><td class="n">−1</td><td>\(\Lambda\) が積分定数になる（既知）</td></tr>
+<tr><td><b>ネットワークのティック</b></td><td class="n">−1</td><td class="n">−0.3333</td><td class="n">−1/3</td><td><b>\(c\,t=\text{const}\) 成分</b>（曲率と同じ \(a^{-2}\)）</td></tr>
+<tr><td>宇宙時間</td><td class="n">0</td><td class="n">0.0000</td><td class="n">0</td><td>ダスト（Brown–Kuchař のダスト時間、既知）</td></tr>
+<tr><td>共形時間</td><td class="n">1</td><td class="n">0.3333</td><td class="n">1/3</td><td>放射</td></tr>
+</table>
+<p>\(E\) の保存は相対 \(10^{-13}\) で成立。<span class="ok">検証済み</span></p>
+<div class="box">
+<b>この座標系で見える構造。</b> ネットワークの時計で時間を数えると、その時間に共役な保存量は<b>ちょうど \(c\,t=\text{const}\) 型（\(w=-1/3\)）の成分</b>になる。
+\(c\,t=\text{const}\) の座標系は、自分自身の時間並進の「エネルギー」として \(c\,t=\text{const}\) 成分を持つ、という自己整合的な形をしている。<span class="mid">解釈</span><br>
+観測上の帰結：大域ティックがあって \(E\ne0\) なら、平坦な空間に \(\rho\propto a^{-2}\) の成分が加わる。曲率と膨張の仕方は同じだが空間の幾何は平坦なので、幾何と膨張史を分ければ区別できる。
+観測上限は C20b・C23 で計算した：DESI DR2 BAO + Planck 距離プライアで \(\Omega_E=-0.020\pm0.010\)（C20b）、超新星を加えると \(-0.010\pm0.010\)（C23）。曲率 \(\Omega_k\) の幅 0.0012 より約 8 倍緩い。
+</div>
+
+<h2>C10. 更新回数の Poisson ゆらぎ：数え方で暗黒成分の種類が決まる（<code>scripts/c10_poisson_ticks.py</code>）</h2>
+<p>C9 の作用では \(E\) の項は \(-\rho_{E0}\,U\)（\(U=V_c\int a^{-\beta}d\tau\)＝更新の総数）。Sorkin の議論（"everpresent \(\Lambda\)"）は、時空が離散的で 4 次元体積 \(U\) が Poisson ゆらぎ \(\sqrt U\) を持つなら、共役な \(\Lambda\) は \(1/\sqrt U\) 程度の値を持つ、というもので、観測される \(\Lambda\) の大きさを事前に当てたことで知られる（\(\beta=-3\) の場合）。
+ここでは<b>数え方を変える</b>：ネットワークの各サイトの固有時を数える（\(\beta=0\)）、ティックを数える（\(\beta=-1\)）。</p>
+<p><b>事前予測：</b> どの数え方でも \(U\sim(t_0/t_P)^4\)、\(\rho_{\rm crit}\sim(t_0/t_P)^{-2}\) なので \(\Omega\sim O(1)\)（0.3–5）。（Planck 単位、\(V_c\) はいまのハッブル体積、ΛCDM の \(a(\tau)\)）</p>
+<table>
+<tr><th>数えるもの</th><th>\(\beta\)</th><th>共役な成分</th><th>\(\int a^{-\beta}d\tau/t_0\)</th><th>\(\Omega\sim\rho_{\rm crit}^{-1}U^{-1/2}\)</th><th>観測</th></tr>
+<tr><td>4 次元体積</td><td class="n">−3</td><td>\(\Lambda\)（\(w=-1\)）</td><td class="n">0.28</td><td class="n">7.9</td><td>\(\Omega_\Lambda=0.69\)</td></tr>
+<tr><td>サイトごとの固有時</td><td class="n">0</td><td>ダスト（\(w=0\)）</td><td class="n">1.00</td><td class="n">4.2</td><td>暗黒物質 \(\Omega_c=0.26\)</td></tr>
+<tr><td>ネットワークのティック</td><td class="n">−1</td><td>\(w=-1/3\)</td><td class="n">0.56</td><td class="n">5.6</td><td>見えていない（\(\lesssim10^{-2}\)）</td></tr>
+</table>
+<p>どれも \(O(1)\)（\(\beta=-3\) の 7.9 は予測範囲 0.3–5 をわずかに超えた）。\(O(1)\) の係数は \(V_c\) の取り方（ハッブル体積か過去の光円錐か）で数倍変わるので、意味があるのは桁だけ。<span class="ok">検証済み（桁の見積もり）</span></p>
+<div class="box">
+<b>解釈。</b> 「更新回数が数えられる量で、その Poisson ゆらぎが共役な量を決める」とすると、<b>今を基準にした規格化では、どの数え方でも \(\Omega\sim O(1)\) の暗黒成分が現れ</b>（規格化によらないのは 4 次元体積だけ、下の訂正参照）、何を数えるかでその状態方程式 \(w=\beta/3\) が決まる。
+4 次元体積を数えれば暗黒エネルギー、サイトの固有時を数えれば暗黒物質型（mimetic dark matter と同類）、ネットワークのティックを数えれば \(c\,t=\text{const}\) 成分になる。<span class="mid">解釈</span><br>
+<span class="ng">否定的な帰結（条件付き、レビューで訂正）：</span> 初版では「大域ティックの Poisson 数え上げは \(\Omega\sim5\) の \(w=-1/3\) 成分を予言し観測と合わない → 非同期を支持」と書いた。
+しかし \(U=V_c\int a^{-\beta}d\tau\) は \(a\) の規格化を \(\lambda\) 倍すると \(\lambda^{-(3+\beta)}\) 倍になり、<b>規格化によらないのは \(\beta=-3\)（4 次元体積）だけ</b>である。
+上の表は「今（\(a=1\)）サイトが Planck サイズ」という規約での値で、§8 のルールではサイトと Planck 長の比は \(\propto a\) で変わる。サイトが Planck サイズになる時期を \(a_*\) とすると \(\Omega\propto a_*^{(3+\beta)/2}\)（例：\(a_*=10^{-3}\) なら \(\beta=-1\) で \(10^{-3}\) 倍）。
+また \(\beta\ge2\) では放射期で積分が発散する。したがって「どの数え方でも \(O(1)\)」と「非同期を支持」は、この規約を置いたときだけの結論として取り下げる。
+</div>
+<p>既知との関係：Sorkin (1990 年代)、Ahmed, Dodelson, Greene, Sorkin (2004) の everpresent \(\Lambda\)。時間を流体で定義すると対応する暗黒成分が出ることは Brown–Kuchař (1995)、mimetic dark matter (Chamseddine–Mukhanov 2013) と同じ構造。新しいのは「ネットワークのティックが \(w=-1/3\) を選ぶ」という対応づけだけ。</p>
+
+<h2>C11. C3 の予測外れの原因：長波長モードの遺物（<code>scripts/c8_chain_mode_relics.py</code>）</h2>
+<p>C3 の鎖（\(p=1\)、実効的に \(\eta\approx4/t\)）で、ノイズが \(p\) の順に並ばなかった理由を C5 の式で確かめる。周期的な 256 体の鎖を 0 から始め（純粋なノイズ）、フーリエモード \(k\)（\(\lambda_k=4\sin^2(k/2)\)、\(r_k=\eta_0\lambda_k\)）ごとに分散を測った。</p>
+<p><b>事前予測：</b> 連続近似の厳密解
+\(V_k(t)=\frac{G\eta_0^2}{2r-1}\big[(t+t_0)^{-1}-t_0^{2r-1}(t+t_0)^{-2r}\big]\)（\(G=15\sigma^2/M\)）と 15% 以内で一致。遺物と熱平衡の境界は \(k_c=0.355\)（波長 17.7 サイト）。後期のスペクトルは \(k_c\) の少し上に山を持つ。</p>
+<table>
+<tr><th>\(k\)</th><th>\(r\)</th><th>\(t\,V\)（\(t=10^5\)、測定）</th><th>予測</th><th>比</th></tr>
+<tr><td class="n">0</td><td class="n">0</td><td class="n">3222</td><td class="n">2999</td><td class="n">1.07</td></tr>
+<tr><td class="n">0.098</td><td class="n">0.04</td><td class="n">1518</td><td class="n">1686</td><td class="n">0.90</td></tr>
+<tr><td class="n">0.245</td><td class="n">0.24</td><td class="n">84.9</td><td class="n">95.9</td><td class="n">0.89</td></tr>
+<tr><td class="n">0.368</td><td class="n">0.54</td><td class="n">3.71</td><td class="n">3.82</td><td class="n">0.97</td></tr>
+<tr><td class="n">1.571</td><td class="n">8</td><td class="n">0.0366</td><td class="n">0.0400</td><td class="n">0.92</td></tr>
+<tr><td class="n">3.142</td><td class="n">16</td><td class="n">0.0210</td><td class="n">0.0194</td><td class="n">1.09</td></tr>
+</table>
+<p>5 桁にわたって中央値 10% で一致（\(t=10^3,10^4,10^5\) とも）。<span class="ok">検証済み</span>
+\(k&lt;k_c\) の長波長モードは \(t\,V\propto t^{1-2r}\) で増え、\(k=0\) は凍結して、残りのノイズのほとんどを担う。C3 でノイズがきれいに減らなかったのはこのため。<span class="ok">原因を確定</span><br>
+「\(k_c\) の少し上に山」の予測は<span class="ng">外れ</span>（スペクトルは単調減少）。\(r\to1/2\) で \(1/(2r-1)\) が発散しても、有限時間では \(\ln t\) で抑えられるため。これは実行前に式を見直した段階で気づいていた。</p>
+
+<h2>C12. 自分でステップ幅を決める最適化はどの \(p\) を選ぶか（<code>scripts/c11_adaptive_schedules.py</code>）</h2>
+<p>ノイズのある球面 \(f=|x|^2/2+\)ノイズ（\(d=10\)）で、適応的な手法のステップ幅の指数 \(p\)（\(\eta\propto t^{-p}\)）を測った。</p>
+<p><b>事前予測：</b> (a) ベイズ最適（カルマンフィルタ）は \(\eta=1/(\lambda t)\) で \(p=1\)。(b) AdaGrad は \(p=1/2\)。(c) (1+1)-ES の 1/5 成功則はノイズの底で \(\sigma\) が指数関数的に縮み、\(p\to\infty\)。</p>
+<table>
+<tr><th>手法</th><th>測定</th><th>予測</th><th>宇宙論の辞書（C7）</th></tr>
+<tr><td>ベイズ最適（カルマン）</td><td class="n">\(p=0.9996\)、\(\eta\lambda t=1.0000\)</td><td class="n">1</td><td>\(w=-1/3\)：<b>\(c\,t=\text{const}\)</b></td></tr>
+<tr><td>AdaGrad</td><td class="n">\(p=0.45\)</td><td class="n">0.5</td><td>\(w=1\)：硬い物質（音速 = 光速）</td></tr>
+<tr><td>1/5 成功則の ES</td><td>\(\ln\sigma\) が \(t\) に比例（傾き −0.020/ステップ）</td><td>指数関数的</td><td>\(p\to\infty\)：事象の地平線より強い凍結</td></tr>
+</table>
+<p>3 つとも予測どおり（AdaGrad は漸近途中）。<span class="ok">検証済み</span>
+1/5 成功則では、ノイズで偶然低く出た評価値（\(-0.27\)）を誰も超えられず、毎回失敗して \(\sigma\) が最大の速さで縮んだ（\(-0.2/d=-0.02\)）。古い評価値を使い続ける既知の病理。</p>
+<div class="box">
+<b>解釈。</b> ノイズの中で定数を推定する<b>最適な</b>学習は、ちょうど \(c\,t=\text{const}\)（\(\eta=1/t\)＝これまでの平均）を選ぶ。最適ではない手法は境目からずれる：AdaGrad は「硬い」側の境目、成功則は凍結側。
+「宇宙がノイズの中で最適な推定をしているなら等速膨張になる」という形の仮説が書けるが、実際の宇宙はネットワーク時間で約 1.8 Gyr 前に \(p=1\) を通過し、今は \(p_{\rm loc}=1.054\) で \(p\to2\) へ向かっている（C2 の訂正）。<span class="mid">解釈</span>
+</div>
+
+<h2>C13. 自然選択はどのスケジュールで動くか：選択 = ベイズ更新 = \(c\,t=\text{const}\)（<code>scripts/c12_selection_schedule.py</code>）</h2>
+<p>出発点の論文（生物圏 = ES）に戻る。Wright–Fisher 集団にガウス型の安定化選択 \(w(x)=e^{-sx^2/2}\)（\(s=0.05\)、平均 1、分散 \(V_0=1\) から開始）をかける。
+ガウス分布にガウス型の選択をかけると分散は \(1/V'=1/V+s\)、平均は \(-sV/(1+sV)\) 倍だけ動く。これは<b>ベイズ更新そのもの</b>（レプリケータ方程式とベイズ規則の同型として既知）で、
+集団の実効的なステップ幅 \(\eta_t=sV_t/(1+sV_t)\) が集団の「\(c\)」にあたる。</p>
+<p><b>事前予測：</b> (a) 突然変異なし・大集団：\(V_t=V_0/(1+sV_0t)\)、\(p=1\)。(b) 有限集団 \(N\)：\(t\gtrsim N\) で遺伝的浮動により指数関数的に凍結（\(p\to\infty\)）。
+(c) 突然変異（分散 \(m\)/世代）あり：変異と選択のつり合い \(V^*\approx\sqrt{m/s}\) に落ち着き \(p\to0\)。</p>
+<table>
+<tr><th>条件</th><th>\(V\)（\(t=10,100,1000,3000\)）</th><th>局所的な \(p\)（\([30,300]\) / \([300,3000]\)）</th><th>判定</th></tr>
+<tr><td>(a) \(N=2\times10^5\)、変異なし</td><td class="n">0.675, 0.160, 0.0214, 0.0063（予測 0.667, 0.167, 0.0196, 0.0066）</td><td class="n">0.80 / <b>1.00</b></td><td><span class="ok">予測どおり</span>（前半は \(sV\ll1\) になる前の移行）</td></tr>
+<tr><td>(b) \(N=2000\)、変異なし</td><td class="n">0.678, 0.125, 0.0246, <b>0</b></td><td class="n">0.48 / \(\infty\)</td><td><span class="ok">予測どおり</span>：\(t=3000\) で固定（分散 0）＝凍結</td></tr>
+<tr><td>(c) \(N=2\times10^5\)、\(m=10^{-4}\)</td><td class="n">0.671, 0.171, 0.0460, 0.0423（予測 \(V^*=0.0448\)）</td><td class="n">0.74 / 0.23 → 0</td><td><span class="mid">おおむね</span>（\(t=3000\) の値は厳密な根 0.04477 より 5–6% 低い。有限集団の無性生殖による分散の減少の可能性、未検証）</td></tr>
+</table>
+<div class="box">
+<b>この座標系で見える構造（生物版）。</b> C7 の辞書で読むと
+<ul>
+<li>突然変異のない選択（新しい多様性なしに情報を絞り込む）＝ \(p=1\)：<b>\(c\,t=\text{const}\)、等速膨張</b>。C12 のベイズ最適な学習と同じ。</li>
+<li>有限集団の浮動による固定 ＝ \(p\to\infty\)：事象の地平線型の凍結（それ以上何も届かない）。</li>
+<li>突然変異が多様性を補給する ＝ \(p=0\)：一定のステップ幅＝静止宇宙。探索を止めない。</li>
+</ul>
+（注：「選択 = ベイズ更新」が厳密に成り立つのはクローン（無性生殖）のモデル。有性生殖で組換えがあると Bulmer 効果でずれる。）<br>
+論文の「生物圏 = ES」を \(c\,t=\text{const}\) の座標系で見ると、<b>選択は情報を集め続ける最適な推定（\(p=1\)）、突然変異はそれを定常状態（\(p=0\)）に保つ装置</b>として分類できる。<span class="mid">解釈</span>（量的遺伝学としては標準的な結果の言い換え）
+</div>
+
+<h2>C14. \(c\,t=\text{const}\) の時計で見ると真空は温度 \(1/(2\pi t)\) を持つ（<code>scripts/c13_logtime_temperature.py</code>）</h2>
+<p>1+1 次元の質量ゼロの場のミンコフスキー真空を、原点に静止した観測者が見る。\(\partial_t\phi\) の相関関数は \(-1/(4\pi(\Delta t-i\epsilon)^2)\)。
+同じ量を対数時間 \(s=\ln t\) で、共形重みを付けた \(O(s)=t\,\partial_t\phi\) として書くと</p>
+$$\langle O(s_1)O(s_2)\rangle=-\frac{1}{16\pi\,\sinh^2\!\big((s_1-s_2-i\epsilon)/2\big)},$$
+<p>と \(s\) について定常になり、<b>温度 \(1/(2\pi)\)（\(s\) の単位）の熱平衡の相関関数</b>（KMS 条件）と同じ形になる。物理単位では \(T=\hbar/(2\pi k_Bt)\)。</p>
+<p><b>事前予測：</b> \(s\) を時計にする検出器は \(F(\omega)/F(-\omega)=e^{-2\pi\omega}\)。普通の固有時 \(t\) を時計にする検出器は励起しない（\(F(\omega>0)=0\)）。</p>
+<table>
+<tr><th>\(\omega\)</th><th>\(F_s(+\omega)/F_s(-\omega)\)</th><th>\(e^{-2\pi\omega}\)</th><th>\(F_t(+\omega)\)</th><th>\(F_t(-\omega)\)</th></tr>
+<tr><td class="n">0.10</td><td class="n">0.5356</td><td class="n">0.5335</td><td class="n">\(\sim10^{-5}\)</td><td class="n">0.0499</td></tr>
+<tr><td class="n">0.25</td><td class="n">0.2100</td><td class="n">0.2079</td><td class="n">\(\sim10^{-6}\)</td><td class="n">0.124</td></tr>
+<tr><td class="n">0.50</td><td class="n">0.0441</td><td class="n">0.0432</td><td class="n">\(\sim10^{-6}\)</td><td class="n">0.248</td></tr>
+<tr><td class="n">1.00</td><td class="n">0.00194</td><td class="n">0.00187</td><td class="n">\(\sim10^{-6}\)</td><td class="n">0.490</td></tr>
+</table>
+<p>ずれ（\(\omega=1\) で 4%）は正則化 \(\epsilon=0.02\) による \(e^{2\omega\epsilon}\) でちょうど説明される。<span class="ok">検証済み</span></p>
+<div class="box">
+<b>この座標系で見える構造。</b> 同じ真空が、\(c=\text{const}\) の時計では「冷たい」、\(c\,t=\text{const}\) の時計では「温度 \(1/(2\pi t)\)」に見える。
+矛盾ではない：\(s\) を時計にする検出器は、エネルギー間隔が \(1/t\) で縮む別の装置（\(c\,t=\text{const}\) の座標系で「一定の物差し」で作った装置）であり、Unruh 効果（加速 → 温度 \(a/2\pi\)）のスケール変換版にあたる。
+数学としては、共形場の理論で前方光円錐の modular 群がスケール変換になるという Hislop–Longo (1982) の結果と同じで、既知。
+「\(1/t\) に比例するギャップを持つ検出器が \(\hbar/(2\pi k_Bt)\) を見る」という物理の主張にも、より直接の先行研究があるはず（候補：Martinetti–Rovelli 2003 の diamond temperature、Olson–Ralph 2011、Higuchi–Iso–Ueda–Yamamoto 2017。記憶による、要確認）。<br>
+<b>適用範囲（レビューで追記）：</b> これはミンコフスキー真空（Milne wedge）についての結果であり、3+1 次元の平坦な等速膨張宇宙の真空が \(1/(2\pi t)\) で熱的という意味ではない（共形真空を取れば熱的ではない）。
+<b>規格化（同）：</b> 非カイラルな 1+1 次元の場では相関関数は \(-1/(2\pi(\Delta t-i\epsilon)^2)\) で、上の式とスクリプトの係数はカイラル成分 1 つ分（全体が 2 倍ずれる）。比 \(F(+\omega)/F(-\omega)\) と KMS 温度には影響しない。<br>
+<b>数値の一致：</b> 今の宇宙年齢での \(\hbar/(2\pi k_Bt_0)=2.8\times10^{-30}\) K は、de Sitter 地平線の Gibbons–Hawking 温度 \(\hbar H_0/(2\pi k_B)=2.7\times10^{-30}\) K とほぼ等しい。
+比はちょうど \(H_0t_0=0.95\) で、<b>2 つの温度が一致する条件は \(Ht=1\)、つまり \(c\,t\) の停留点</b>。C1 の偶然の別の言い方である。<span class="mid">解釈</span>（観測するには小さすぎる）
+</div>
+
+<h2>C15. 焼きなまし法の対数冷却定理も \(c\,t=\text{const}\) の境目（<code>scripts/c14_hajek_logcooling.py</code>）</h2>
+<p>焼きなまし法が大域最適解に収束する条件は、温度 \(T=c/\ln t\) で \(c\ge d^*\)（大域解でない谷のうち最も深いものの深さ）である（Hajek 1988）。
+谷から抜け出す率は \(Ae^{-d^*/T}=A\,t^{-d^*/c}\) なので、これは指数 \(p=d^*/c\) のスケジュールであり、条件 \(c\ge d^*\) は \(p\le1\)、すなわち<b>抜け出す試行の総数 \(\sum t^{-p}\) が発散する</b>ことと同じ。</p>
+<p>2 つの谷（局所解の障壁 \(d_1=1\)、大域解の障壁 \(d_2=2\)、\(A=0.01\)、全員が局所解から出発）の 2 状態モデルを \(s=\ln t\) で積分した。
+（記録：最初の実行は \(A=1\)・陽的 RK4 で \(c\ge2\) が数値的に発散し、差も見えにくかったため、厳密な指数積分と \(A=0.01\) で予測を書き直して再実行した。）</p>
+<p><b>事前予測（再実行）：</b> \(c&lt;1\) で \(P_\infty\approx Ac/(1-c)\)（凍結）、\(c=1\) で \(1-P\approx e^{-As}\)、\(c>1\) で \(P\to1\)。</p>
+<table>
+<tr><th>\(c\)</th><th>\(P(s=10)\)</th><th>\(P(s=50)\)</th><th>\(P(s=200)\)</th><th>予測</th></tr>
+<tr><td class="n">0.5</td><td class="n">0.0099</td><td class="n">0.0099</td><td class="n">0.0099</td><td class="n">0.0100</td></tr>
+<tr><td class="n">0.9</td><td class="n">0.059</td><td class="n">0.086</td><td class="n">0.086</td><td class="n">0.090</td></tr>
+<tr><td class="n">0.95</td><td class="n">0.075</td><td class="n">0.162</td><td class="n">0.173</td><td class="n">\(1-e^{-0.19}=0.173\)</td></tr>
+<tr><td class="n"><b>1</b></td><td class="n">0.095</td><td class="n">0.393</td><td class="n">0.86465</td><td class="n">0.8647</td></tr>
+<tr><td class="n">1.05</td><td class="n">0.120</td><td class="n">0.873</td><td class="n">1.000</td><td class="n">→ 1</td></tr>
+<tr><td class="n">2</td><td class="n">0.940</td><td class="n">1.000</td><td class="n">1.000</td><td class="n">→ 1</td></tr>
+</table>
+<p><span class="ok">検証済み</span>（Hajek の定理として既知。新しいのは \(c\,t=\text{const}\) の境目として読むことだけ）</p>
+
+<h2>C16. \(p=1\) はなぜ何度も現れるか</h2>
+<table>
+<tr><th>場面</th><th>スケジュール</th><th>\(p&lt;1\)</th><th>\(p=1\)（\(c\,t=\text{const}\)）</th><th>\(p>1\)</th></tr>
+<tr><td>宇宙論（C3, C7）</td><td>\(c_{\rm net}\propto T^{-p}\)</td><td>減速膨張、地平線問題</td><td>等速膨張、\(w=-1/3\)</td><td>加速膨張、事象の地平線</td></tr>
+<tr><td>確率近似（C3, C5）</td><td>\(\eta\propto t^{-p}\)</td><td>強凸ならノイズは減るが遅い（\(\propto\eta\)）。古典的な十分条件は \(p&gt;1/2\)</td><td>最適な速さ \(1/t\)（\(\eta_0\lambda>1/2\) のとき）</td><td>途中で止まる、誤差が凍結</td></tr>
+<tr><td>ベイズ推定（C12）</td><td>カルマンゲイン</td><td>—</td><td>最適</td><td>—</td></tr>
+<tr><td>自然選択（C13）</td><td>\(sV_t\)</td><td>突然変異あり（\(p=0\)）</td><td>選択のみ</td><td>浮動による固定</td></tr>
+<tr><td>焼きなまし（C15）</td><td>抜け出す率 \(t^{-d^*/c}\)</td><td>大域解へ</td><td>境目（\(c=d^*\)）</td><td>局所解に凍結</td></tr>
+</table>
+<div class="box">
+<b>共通の理由。</b> どれも「\(\sum_t t^{-p}\) が発散するか」で決まり、その境目が \(p=1\)（対数発散）である。
+\(s=\ln t\) で見ると \(t^{-p}\,dt=e^{(1-p)s}ds\) なので、<b>\(p=1\) は \(s\) について定常（1 e-fold あたりの量が一定）</b>、\(p&lt;1\) は \(s\) で指数的に増え、\(p>1\) は指数的に減る。
+\(c\,t=\text{const}\) の座標系は、この「境目の場合が定常に見える」座標系であり、これらの分野で別々に知られている臨界条件がすべてこの 1 つの事実の現れとして並ぶ。<span class="mid">解釈</span>（個々の結果はすべて既知）
+</div>
+
+<h2>C17. Gemini の仮定「情報容量が一定」の 2 通りの読み方</h2>
+<p>§0 の導出は「\(N\Delta x\)（総ステップ数 × 格子幅）が一定」を仮定していた。これを「宇宙の情報容量が一定」と読むとき、容量の測り方で答えが分かれる。</p>
+<table>
+<tr><th>読み方</th><th>一定になるもの</th><th>選ばれる宇宙</th></tr>
+<tr><td>ネットワーク単位の到達距離 \(c_{\rm net}T\)</td><td>\(c\,t\)</td><td>等速膨張（\(p=1\)、\(w=-1/3\)）</td></tr>
+<tr><td>ホログラフィー：ハッブル地平線のエントロピー \(S=\pi(c/H)^2/\ell_P^2\)</td><td>\(H\)</td><td>de Sitter（\(p=2\)、\(w=-1\)）</td></tr>
+</table>
+<p>\(S\) は無次元量なので、こちらは座標系によらない主張になる。平坦な ΛCDM では \(S/S_\infty=(H_\Lambda/H)^2=\Omega_\Lambda(t)\) が恒等的に成り立つ。
+今は \(S_0=2.27\times10^{122}\)、最終値 \(S_\infty=3.31\times10^{122}\) で、<b>宇宙の地平線の情報容量は最終値の 68.5% に達している</b>。<span class="ok">検証済み（算術）</span></p>
+<p>意味：「情報容量が一定」というホログラフィーの読み方を採ると、実際の宇宙はその状態（de Sitter）に向かっており、観測と整合する方向にある。
+\(c\,t=\text{const}\) の読み方（等速膨張）は、そこへ向かう途中で一度だけ通過する点である（宇宙時間の \(c_{\rm com}t\) ならあと 1.26 Gyr、ネットワーク時間の \(c_{\rm net}T\) なら約 1.8 Gyr 前）。<span class="mid">解釈</span></p>
+
+<h2>C18. C6 の訂正：ネットワークではノイズが白色なのでスケール不変にならない（<code>scripts/c15_network_freeze.py</code>）</h2>
+<p>C6 の「\(p=5/3\) で 3 次元スケール不変」は、独立したモードを素朴な ES で動かした場合（ノイズ \(G\propto\lambda^2\)）の結果だった。
+エージェントのネットワークでは各エージェントが自分の局所損失で ES をするので、勾配ノイズはフーリエモードによらない<b>白色</b>（C11 で確認した \(G=15\sigma^2/M\)）になる。すると \(V\propto\lambda^{-2-1/(p-1)}\) となり、どの \(p>1\) でも \(k^{-3}\) より急になる。</p>
+<p>周期的な 256 体の鎖で \(\eta=\eta_0/(t+t_0)^2\)（\(p=2\)、\(\eta_0=10^4,\ t_0=250\)）、0 から開始。</p>
+<p><b>事前予測：</b> \(V_\infty=G\eta_0^2\!\int_{t_0}^{\infty}u^{-4}e^{-2\lambda\eta_0/u}du\approx G/(4\lambda^3\eta_0)\)、傾き \(d\ln V/d\ln\lambda=-3\)（独立モード版なら −1）。</p>
+<table>
+<tr><th>\(\lambda\)</th><th>\(V\)（測定）</th><th>予測</th><th>比</th><th>\(V(T/2)/V(T)\)</th></tr>
+<tr><td class="n">0.038</td><td class="n">\(8.0\times10^{-3}\)</td><td class="n">\(9.8\times10^{-3}\)</td><td class="n">0.82</td><td class="n">1.004</td></tr>
+<tr><td class="n">0.152</td><td class="n">\(2.87\times10^{-4}\)</td><td class="n">\(2.66\times10^{-4}\)</td><td class="n">1.08</td><td class="n">1.015</td></tr>
+<tr><td class="n">0.586</td><td class="n">\(4.58\times10^{-6}\)</td><td class="n">\(4.66\times10^{-6}\)</td><td class="n">0.98</td><td class="n">1.072</td></tr>
+<tr><td class="n">2.0</td><td class="n">\(1.79\times10^{-7}\)</td><td class="n">\(1.17\times10^{-7}\)</td><td class="n">1.53</td><td class="n">1.178</td></tr>
+<tr><td class="n">4.0</td><td class="n">\(2.39\times10^{-8}\)</td><td class="n">\(1.47\times10^{-8}\)</td><td class="n">1.63</td><td class="n">1.354</td></tr>
+</table>
+<p>傾き −2.83（予測 −3）。凍結が終わったモードでは 2–18% で一致し、大きい \(\lambda\) のずれはまだ凍結途中（凍結時刻 \(2\lambda\eta_0\sim8\times10^4\) が計算時間 \(2\times10^5\) に近い）のため。<span class="ok">予測どおり</span></p>
+<p><span class="ng">C6 の解釈の訂正：</span> 局所的に ES をするエージェントのネットワークでは、凍結したノイズは<b>どの \(p\) でもスケール不変にならない</b>。インフレーションのスケール不変性には、実際の宇宙と同じく 2 階の力学と、量子的なゼロ点ゆらぎ（白色ではなく \(1/\omega_k\) に比例するノイズ）が必要と考えられる。</p>
+
+<h2>C19. 最適な学習はネットワークの時計を決めるか（試案、<code>scripts/c17_selfconsistent_clock.py</code>）</h2>
+<p>各エージェントが隣人からのノイズ入りメッセージで共通の値を推定し、最適なゲイン（カルマン）\(1/n\)（\(n\)＝受け取ったメッセージ数）で更新する。ゲインを「ステップ幅 = \(c_{\rm net}\)」と同一視する。</p>
+<p><b>事前予測：</b> (i) 1 ティックあたりのメッセージ数が一定なら \(p=1\)。(ii) メッセージ数がホップ率 \(c_{\rm net}\) に比例し（§8 の同時更新ルール：やり取りの率 \(\propto\nu_i\nu_j=c_{\rm net}\)）、\(c_{\rm net}\)＝集団平均のゲインと自己無撞着に決めると \(dn/dT=1/n\) より \(p=1/2\)。</p>
+<table>
+<tr><th>規則</th><th>\(p\)（測定）</th><th>予測</th><th>推定誤差 × \(n\)</th><th>C7 の辞書</th></tr>
+<tr><td>(i) 受信数一定</td><td class="n">1.000</td><td class="n">1</td><td class="n">0.98–1.00</td><td>\(w=-1/3\)（等速膨張）</td></tr>
+<tr><td>(ii) 受信数 ∝ \(c_{\rm net}\)、自己無撞着</td><td class="n">0.500</td><td class="n">1/2</td><td class="n">1.00–1.03</td><td>\(w=1\)（硬い物質）</td></tr>
+</table>
+<p><span class="ok">予測どおり</span>（どちらも最適な推定、誤差 × \(n\approx1\)）。</p>
+<p><b>訂正（第 2 回レビュー）：</b> (ii) の \(p=1/2\) は「1 回あたりのゲイン \(1/n\)」を \(c_{\rm net}\) と同一視した結果である。受信率 \(c\) を掛けた<b>1 ティックあたりの実効的な学習率</b> \(d\ln n/dT=c/n\approx1/(2T)\) で見ると、(ii) も <b>\(p=1\)</b> になる。
+つまり最適な推定は、ティックあたりで見ればどちらの規則でも \(1/T\) を選ぶ。一方、ホップ率 \(c_{\rm net}\) 自体は (ii) で \(T^{-1/2}\) になり、学習率と光速が別々のスケジュールを持つ。<span class="mid">解釈</span></p>
+<p><span class="ng">否定的（条件付き）：</span> 「ゲイン＝\(c_{\rm net}\)」と同一視すると、§8 のルールに沿った自己無撞着な版は \(p=1/2\)（\(w=1\)）を与え、放射優勢（2/3）、物質優勢（0.8）、今の宇宙（局所指数 1.054）のどれも再現しない。この否定は同一視の選び方に依存する。
+「最適な学習が宇宙の膨張の仕方を決める」という仮説は、この素朴な形では成り立たない。同一視（ゲイン＝\(c_{\rm net}\)）自体も恣意的である。</p>
+
+<h2>C20. 大域ティックの流体の観測上限（<code>scripts/c19_tick_fluid_bound.py</code>）</h2>
+<p>C9 の \(w=-1/3\) 成分（平坦な空間で \(\rho\propto a^{-2}\)）は、膨張の仕方では曲率と同じだが、空間の幾何は平坦である。DESI DR2 の BAO（13 点、相関込み）と Planck 2018 の距離プライアのうちシフトパラメータ \(R=1.7502\pm0.0046\) を使い、
+\(\Omega_m\)、追加成分 \(\Omega_X\)、BAO のスケール \(c/(H_0r_d)\)（解析的に最小化）でフィットした。同じ手順で曲率も解き、手順の検算にした。</p>
+<p><b>事前予測：</b> 曲率は \(\Omega_k\sim0.002\pm0.002\)（CMB を \(R\) だけにしたので DESI+全 CMB の \(0.0023\pm0.0011\) より緩い）。平坦な流体は幾何の効果がない分さらに緩く、\(\sigma(\Omega_E)\sim0.005\)–0.01。</p>
+<table>
+<tr><th>追加成分</th><th>平均 ± 標準偏差</th><th>95% 範囲</th><th>\(\chi^2_{\min}\)（14 点）</th></tr>
+<tr><td>曲率 \(\Omega_k\)（検算）</td><td class="n">\(+0.0046\pm0.0028\)</td><td class="n">[−0.0010, +0.0100]</td><td class="n">10.4</td></tr>
+<tr><td>平坦な \(w=-1/3\) 流体 \(\Omega_E\)</td><td class="n">\(-0.016\pm0.011\)</td><td class="n">[−0.036, +0.0065]</td><td class="n">11.1</td></tr>
+</table>
+<p>曲率は DESI の論文値と 1σ 以内で整合（手順の検算として合格）。\(\Omega_E\) は予測どおり曲率より緩く、幅は予測よりやや大きい（0.011）。負の側に 1.5σ 寄っているが有意ではない。<span class="ok">おおむね予測どおり</span></p>
+<p><b>帰結：</b> 大域ティックの共役エネルギーは \(|\Omega_E|\lesssim0.03\)（95%、\(R\) のみを使ったこの最初のフィットの値。C20b・C23 で更新）。C10 で「今を基準にした規格化」で見積もった \(\Omega\sim5.6\) は 2 桁以上大きく、<b>その規約のもとでは</b>否定される。ただし C10 の訂正のとおり規格化は自由なので、これは「サイトが今 Planck サイズ」という規約に対する否定である。<span class="mid">解釈</span></p>
+<h3>C20b. CMB の距離プライアをすべて使う（<code>scripts/c20_tick_fluid_bound_full.py</code>）</h3>
+<p>\(R\) に加えて \(\ell_A=301.471\pm0.090\)、\(\omega_b=0.02236\pm0.00015\) を使い、音響地平線（\(z_*\)：Hu–Sugiyama、\(z_d\)：Eisenstein–Hu の近似式。Planck の最良値で \(r_s(z_*)=144.43\)、\(r_d=147.09\) Mpc になるよう較正）を計算して、\(\Omega_m, h, \Omega_X\) でフィットした。</p>
+<p><b>事前予測：</b> 曲率は DESI+CMB の \(0.0023\pm0.0011\) と 1σ 以内、幅 0.0015 程度。流体は \(\sigma(\Omega_E)\sim0.005\)。</p>
+<table>
+<tr><th>追加成分</th><th>平均 ± 標準偏差</th><th>最良点</th><th>\(\chi^2_{\min}\)（16 点）</th></tr>
+<tr><td>曲率 \(\Omega_k\)（検算）</td><td class="n">\(+0.0027\pm0.0013\)</td><td class="n">\(\Omega_m=0.305,\ h=0.685\)</td><td class="n">11.9</td></tr>
+<tr><td>平坦な \(w=-1/3\) 流体 \(\Omega_E\)</td><td class="n">\(-0.019\pm0.009\)</td><td class="n">\(\Omega_m=0.298,\ h=0.693\)</td><td class="n">12.4</td></tr>
+</table>
+<p>曲率は論文値とよく一致し、手順の検算として合格。<span class="ok">検証済み</span>
+流体の幅は 0.009 で、予測の 0.005 より大きかった。<span class="ng">予測外れ</span>（幾何の効果がないため、CMB と BAO の両方で \(h\) や \(\Omega_m\) と縮退しやすい）。</p>
+<p><b>連続最適化でのやり直し（レビューの指摘、<code>scripts/c22_tick_fluid_profile_nm.py</code>）：</b> \(\ell_A\) の相対誤差は \(3\times10^{-4}\) と小さく、上のグリッド（\(h\) の刻み 0.0025）ではプロファイルがでこぼこになっていた。
+各 \(\Omega_X\) で \((\Omega_m,h,\omega_b)\) を Nelder–Mead で最小化し直した（\(\omega_b\) もプロファイル。開始点は 2 つで、\(\Omega_E=0\) と \(\Omega_k=0\) という同じ ΛCDM の点で \(\chi^2\) が一致すること（15.7 と 15.6）で収束を確認）。
+<b>事前予測：</b> ほぼ変わらない。<b>結果：</b> 曲率 \(+0.0027\pm0.0012\)、流体 \(\Omega_E=-0.020\pm0.010\)、プロファイルは滑らかで、\(\Omega_E=0\) は \(\sqrt{\Delta\chi^2}=1.9\)。<span class="ok">予測どおり</span>（「2.1σ」はグリッドによる過大評価だった）</p>
+<p>平均は負の側に約 1.9σ 寄っており、0 は 95% 区間のほぼ端にある。
+解釈（レビューで改訂）：DESI DR2 の BAO は、ΛCDM の中で CMB より低い \(\Omega_m\) を好む（約 2σ の張力）。負の \(a^{-2}\) 項はこの <b>BAO と CMB の \(\Omega_m\)・\(h\) の張力を吸収する自由度</b>になる。
+負の \(\Omega_E\) は低赤方偏移で phantom 的（暗黒エネルギー密度が過去ほど小さい）振る舞いにあたり、DESI の \(w_0w_a\) の好み（今は \(w>-1\)）そのものを真似るわけではない。
+CMB の相関係数の出所、試行回数も考えると、<b>「大域ティックの証拠」とは読めない</b>。<span class="mid">解釈</span></p>
+<p>データの注記：DESI DR2 の表の値は論文の HTML 版から要約経由で取得したもので、2 回の取得で一致し、レビューの記憶とも整合するが、引用前に原表で確認が必要。
+C20 の最初のフィットは CMB を \(R\) のみ使った（\(\ell_A\) と \(\omega_b\) は C20b から）。距離プライアの相関係数は \(n_s\) を含む 4×4 行列から取った 3×3 部分（記憶による、レビューの記憶とも一致）。</p>
+
+<h3>C23. 超新星を加える（<code>scripts/c24_tick_fluid_with_sn.py</code>）</h3>
+<p>Pantheon+（1590 個、\(z_{\rm HD}>0.01\)、統計＋系統の共分散、絶対等級は解析的に周辺化）を C20b の BAO + CMB に加え、同じ Nelder–Mead のプロファイルを行った。
+データは公開リポジトリ（PantheonPlusSH0ES/DataRelease）から取得し、ノートのリポジトリには含めていない（スクリプトにフォルダを引数で渡す）。</p>
+<p><b>事前予測：</b> 超新星は ΛCDM の中で高めの \(\Omega_m\) を好むので、C20b の負の \(\Omega_E\) は 0 に近づく（平均/幅 &lt; 1.5）、幅は 0.007 程度に縮む。曲率はほぼ不変。</p>
+<table>
+<tr><th>追加成分</th><th>BAO + CMB（C20b）</th><th>+ 超新星（C23）</th><th>0 での \(\sqrt{\Delta\chi^2}\)</th></tr>
+<tr><td>曲率 \(\Omega_k\)</td><td class="n">\(+0.0027\pm0.0012\)</td><td class="n">\(+0.0028\pm0.0012\)</td><td class="n">2.2</td></tr>
+<tr><td>平坦な流体 \(\Omega_E\)</td><td class="n">\(-0.020\pm0.010\)</td><td class="n">\(-0.010\pm0.010\)</td><td class="n">0.97</td></tr>
+</table>
+<p>\(\Omega_E\) は予測どおり 0 に近づき（2σ → 1σ）、曲率は不変。<span class="ok">一致</span> 一方、幅は縮まなかった（0.010）。<span class="ng">外れ</span>
+<b>C20b の偏りは BAO と CMB の \(\Omega_m\) の張力を吸収していただけ</b>、という読みが支持される。大域ティックの流体は \(-0.03\lesssim\Omega_E\lesssim0.01\)（おおよそ 95%）で、0 と整合する。<span class="mid">解釈</span></p>
+
+<h2>C21. 「今 \(c\,t\) がほぼ一定」は観測者にとってどれくらい珍しいか（<code>scripts/c21_observer_ht.py</code>）</h2>
+<p>観測者の数が宇宙の星形成率（Madau–Dickinson 2014 の式、記憶による）に比例し、星形成から観測者が現れるまで遅れ \(D\) があるとして、観測者が見る \(Ht\)（宇宙時間の \(c_{\rm com}t\) の停留点が 1）と、ネットワーク時間の局所指数 \(p_{\rm loc}\)（C2 の訂正）の分布を計算した。未来の星形成率は式の外挿。</p>
+<p><b>事前予測：</b> \(D=4.5\) Gyr で \(P(|Ht-1|&lt;0.05)\approx0.2\)、観測者が見る \(Ht\) の中央値 \(\approx1.0\)。</p>
+<table>
+<tr><th>遅れ \(D\)</th><th>\(P(|Ht-1|&lt;0.05)\)</th><th>\(Ht\) の中央値</th><th>\(Ht\le0.951\) を見る割合</th><th>\(P(|p_{\rm loc}-1|&lt;0.05)\)</th></tr>
+<tr><td class="n">0</td><td class="n">0.034</td><td class="n">0.711</td><td class="n">0.90</td><td class="n">0.085</td></tr>
+<tr><td class="n">4.5 Gyr</td><td class="n">0.080</td><td class="n">0.816</td><td class="n">0.78</td><td class="n">0.232</td></tr>
+<tr><td class="n">8 Gyr</td><td class="n">0.182</td><td class="n">0.932</td><td class="n">0.55</td><td class="n">0.453</td></tr>
+</table>
+<p>予測は<span class="ng">外れ</span>（\(D=4.5\) Gyr で 0.08、中央値 0.82）。星形成は \(z\approx2\) にピークがあり、典型的な観測者は今より早い時代にいる。
+私たちは観測者の約 78 パーセンタイル（やや遅い側）で、<b>強い偶然ではない</b>。
+（注：窓 \(|Ht-1|&lt;0.05\) の端に私たち自身がいる（\(|H_0t_0-1|=0.049\)）ので、この確率は窓の幅に敏感。また、金属量や地球型惑星の形成時期まで重みに入れると、典型的な観測者はもっと遅い時代に寄り（Behroozi &amp; Peeples 2015 など、記憶による）、結論はさらに強まる。）ネットワーク時間の \(p_{\rm loc}\) は 0.8 から 1.05 へゆっくり変わるので、\(p\approx1\) を見る観測者はさらに多い（23%）。<span class="mid">解釈</span>（観測者の重みづけは仮定に強く依存する）</p>
+
+<h2>C22. ネットワークの時計が変わると粒子が生まれる（<code>scripts/c23_network_particle_creation.py</code>）</h2>
+<p>C2 の辞書が破れる側（断熱パラメータ \(\varepsilon=|\dot\nu|/(M\nu^2)\)＝\(H/m\) が小さくないとき）を、ネットワークそのもので計算した。
+2 バンドの零和の鎖（姉妹編 §7.2 の SSH 型）に §8 のルールを入れる：ホップ \(J=\nu^2\)、二量化 \(m=m_0/\nu\)（静止質量 \(2m_0\nu\propto\nu\)）。
+\(\nu(T)=(T/T_0)^{-1/2}\)（\(c_{\rm net}T=\text{const}\)）で発展させ、下のバンドから出発したモードが上のバンドに混ざる割合 \(|\beta|^2\)（＝生成された粒子の数）を測った（\(m_0=0.1\)、運動量 \(k=\pi+q\)、\(q=0.3\)）。</p>
+<p><b>事前予測：</b> (a) 静止した粒子（\(q=0\)）では固有ベクトルが時間によらないので \(|\beta|^2=0\)。(b) 時間変化を急に始めると、その不連続から \(|\beta|^2\propto\varepsilon_0^2\)。(c) 滑らかに始めると (b) よりはるかに小さい。</p>
+<table>
+<tr><th>条件</th><th>結果</th><th>予測</th></tr>
+<tr><td>(a) 静止、\(T_0=2,20\)</td><td class="n">\(|\beta|^2\sim10^{-31}\)（数値誤差）</td><td class="n">0</td></tr>
+<tr><td>(b) 急な開始、\(\varepsilon_0=0.5\to0.031\)</td><td class="n">\(1.3\times10^{-3}\to3.0\times10^{-6}\)、傾き 2.13</td><td class="n">傾き 2</td></tr>
+<tr><td>(c) 滑らかな開始（\(T_0=10,40\)）</td><td class="n">\(6\times10^{-8},\ 4\times10^{-8}\)（急な開始は \(5\times10^{-4},\ 1\times10^{-5}\)）</td><td class="n">はるかに小さい</td></tr>
+</table>
+<p><span class="ok">予測どおり</span>。ネットワークの時計の変化は、ゆっくりなら粒子を作らず（辞書が成り立つ）、速い・急な変化では粒子を作る。
+これは膨張宇宙での粒子生成（Parker 1968 以来の既知の現象）のネットワーク版で、\(\varepsilon=H/m\) が制御パラメータという点も同じ。
+静止した粒子で生成がちょうど 0 になるのは、この 1 次元模型で静止状態の固有ベクトルが \(\nu\) によらないためで、一般の模型の性質ではない。<span class="mid">解釈</span></p>
+<p><b>訂正（第 3 回レビュー、<code>scripts/c25_particle_creation_v2.py</code>）：</b></p>
+<ul>
+<li>上の (c) の約 \(5\times10^{-8}\) は粒子生成ではなく、\(\nu\) がまだ変わっている途中で瞬間の固有基底に射影したことによる 1 次の断熱補正 \((\dot\phi/4|f|)^2\)（\(\phi=\arg f\)）だった（レビューの見積もり \(4.5\times10^{-8}\)、\(3.8\times10^{-8}\) と一致）。</li>
+<li>(b) は終盤で \(m=0.55\) まで大きくなり、連続体の辞書の領域から外れていた。(b) の値は単調でなく（比 3.8、4.7、3.2、7.3）、傾き 2.13 は平均のフィットだった。</li>
+</ul>
+<p>時間変化を終端でも滑らかに止めて \(\nu\) を凍結してから射影し、\(m_0=0.05\) でやり直した。<b>事前予測：</b> 滑らかな開始で \(|\beta|^2\ll5\times10^{-8}\)、急な開始で傾き約 2。</p>
+<table>
+<tr><th>条件</th><th>結果</th></tr>
+<tr><td>急な開始、\(\varepsilon_0=0.5,0.25,0.125,0.0625\)</td><td class="n">\(1.38\times10^{-4},\ 3.46\times10^{-5},\ 8.71\times10^{-6},\ 2.19\times10^{-6}\)：傾き <b>1.99</b>、比はほぼ一定（約 4）</td></tr>
+<tr><td>滑らかな開始、\(T_0=10,40\)</td><td class="n">\(8.1\times10^{-10},\ 5.3\times10^{-11}\)（以前の \(5\times10^{-8}\) より 2–3 桁小さい）</td></tr>
+</table>
+<p><span class="ok">予測どおり</span>。ただし急な開始の側は、凍結用の区間（約 2400 ティック）が長いため終端で \(m=0.22\)–0.44 となり、\(m\ll1\) は達成できていない（滑らかな開始は 0.07–0.08）。
+また「急な開始で \(\varepsilon^2\)」は初期状態（真空の選び方）を急に切り替えた効果で、Parker の生成そのものというより、モードの混合として同じ機構と書くのが正確（レビューの指摘）。</p>
+
+<h2>まとめ：何がわかって、何がわかっていないか</h2>
+<table>
+<tr><th>問い</th><th>状況</th></tr>
+<tr><td>\(c\,t=\text{const}\) は単位系で常に作れるか</td><td>作れる（関数 1 個の自由度）。ただし時計の付け替えだけでは不可、物差しが宇宙年齢とともに伸びる必要がある</td></tr>
+<tr><td>座標変換としての \(c\,t=\text{const}\)</td><td>真でも偽でもない（観測量は座標系によらない）</td></tr>
+<tr><td>銀河の間隔を物差しにした \(c\,t=\text{const}\)（無次元量 \(ct/D\) が一定）</td><td>\(a\propto t\) と同値。検証できる主張。全歴史では観測と合わない</td></tr>
+<tr><td>今の宇宙では</td><td>\(ct/a\) は最大値の 0.2% 以内（\(H_0t_0=0.95\)）。既知の \(H_0t_0\approx1\) 偶然の言い換え</td></tr>
+<tr><td>ネットワークの一様な時計の変化</td><td>宇宙膨張 \(a=1/\nu\) と同値。局所の無次元量は不変、赤方偏移として見える（§8 ルールに依存）</td></tr>
+<tr><td>\(p\leftrightarrow n\) 辞書</td><td>\(n=p/(2-p)\)、数値で確認</td></tr>
+<tr><td>ES の \(1/t\) スケジュール＝地平線の境目</td><td>到達距離の法則を確認。ノイズの予測は外れ</td></tr>
+<tr><td>対数時間での緩和と冷却の競争（C5）</td><td>極限は確認。有限時間では境界が動く（予測の一部が外れ）</td></tr>
+<tr><td>凍結スペクトル（C6, C18）</td><td>独立モードの ES では \(p=5/3\) で 3 次元スケール不変。ただしネットワーク（白色ノイズ）では \(V\propto\lambda^{-2-1/(p-1)}\) でどの \(p\) でも不可（傾き −2.83、予測 −3）</td></tr>
+<tr><td>情報容量一定の 2 通りの読み方（C17）</td><td>ホログラフィー的には de Sitter。宇宙は最終値の 68.5%</td></tr>
+<tr><td>ネットワーク時計のフリードマン方程式（C7）</td><td>\(p=4/(5+3w)\)。Robbins–Monro の古典的な十分条件の範囲 ＝ \(-1/3\le w&lt;1\)</td></tr>
+<tr><td>最適な学習と時計（C19）</td><td>1 ティックあたりの実効学習率で見ればどちらの規則でも \(p=1\)。\(p=1/2\) は「ゲイン＝\(c_{\rm net}\)」という同一視の産物</td></tr>
+<tr><td>大域ティックの流体の観測上限（C20）</td><td>\(\Omega_E=-0.020\pm0.010\)（曲率の検算は論文値と一致）。証拠とは読めない</td></tr>
+<tr><td>大域ティックの流体 + 超新星（C23）</td><td>\(\Omega_E=-0.010\pm0.010\)：0 と整合。C20b の偏りは BAO と CMB の張力の吸収</td></tr>
+<tr><td>ネットワークでの粒子生成（C22）</td><td>ゆっくりなら生成なし（辞書が成立）、急な開始で \(\varepsilon^2\)（傾き 1.99）。最初の版の射影の誤りをレビューで訂正</td></tr>
+<tr><td>観測者から見た偶然（C21）</td><td>私たちは観測者の 78 パーセンタイル。強い偶然ではない</td></tr>
+<tr><td>Dirac の巨大数仮説（C8）</td><td>約 950σ で否定。座標系では救えない</td></tr>
+<tr><td>大域ティックのエネルギー（C9）</td><td>\(w=\beta/3\)、ネットワークのティックは \(w=-1/3\)（\(c\,t=\text{const}\) 成分）</td></tr>
+<tr><td>更新回数の Poisson ゆらぎ（C10）</td><td>4 次元体積（\(\Lambda\)）だけが規格化によらず \(\Omega\sim O(1)\)。他の数え方は規格化（サイトが Planck サイズになる時期）に依存し、結論は条件付き（レビューで訂正）</td></tr>
+<tr><td>「今の宇宙」の指数（C2 訂正）</td><td>ネットワーク時間では \(p_{\rm loc}=1.054\)、\(p=1\) は約 1.8 Gyr 前。宇宙時間の \(Ht=1\)（あと 1.26 Gyr）とは別の量</td></tr>
+<tr><td>C3 の予測外れの原因（C11）</td><td>長波長モードの遺物と確定。5 桁で中央値 10% 一致</td></tr>
+<tr><td>適応的な最適化の選ぶ \(p\)（C12）</td><td>ベイズ最適 = 1（\(c\,t=\text{const}\)）、AdaGrad = 1/2、成功則 = 凍結</td></tr>
+<tr><td>自然選択のスケジュール（C13）</td><td>選択のみ = 1、浮動 = 凍結、突然変異 = 0</td></tr>
+<tr><td>\(c\,t=\text{const}\) の時計での真空の温度（C14）</td><td>\(1/(2\pi t)\)（既知の Hislop–Longo）。de Sitter の温度と一致する条件が \(Ht=1\)</td></tr>
+<tr><td>焼きなましの対数冷却（C15）</td><td>Hajek の条件 = 抜け出す率のスケジュールで \(p\le1\)</td></tr>
+<tr><td>\(p=1\) の普遍性（C16）</td><td>\(\sum t^{-p}\) の対数発散。\(s\) で見ると定常</td></tr>
+<tr><td>既知と異なる観測可能な予測</td><td><span class="ng">なし</span>。すべて既知の宇宙論・確率近似の範囲</td></tr>
+<tr><td>なぜ今 \(H_0t_0\approx1\)・\(p\approx1\) 付近なのか（偶然問題）</td><td><span class="ng">未解決</span></td></tr>
+</table>
+
+<h3>次の問い（事前登録の候補）</h3>
+<ul>
+<li><b>\(\nu\) の時間変化を決める力学。</b> 姉妹編 §11 のハミルトニアン拘束（全体の時計がない）から、一様モード \(\nu(T)\) の方程式（フリードマン方程式に当たるもの）が出るか。出るなら、どの「物質」が \(p=2/3,\,0.8\) を与え、何が \(p\to2\)（宇宙定数）を与えるか。
+→ <b>部分的に進展（C7, C9）</b>：一般相対論のミニ超空間をネットワークの時計（\(N=1/a\)）で書けば \(p=4/(5+3w)\) と拘束 \(E=0\) が出る。ただしこれは一般相対論を書き直しただけで、ネットワークの規則から導いたものではない。</li>
+<li><b>最適スケジュールとしての宇宙。</b> 宇宙が集団で最適化しているなら、最適なスケジュール \(p=1\) に引き込まれる力学はあるか。観測された ΛCDM は \(p=1\) を通り過ぎて \(p\to2\) に向かうので、「宇宙は最適スケジュールをとる」という素朴な仮説は<b>否定される</b>。今がちょうど通過点にいることに意味があるかは開いた問題。</li>
+<li><b>凍結したノイズのスペクトル。</b> \(p>1\) の ES で凍結したノイズのパワースペクトルが、インフレーションのようにスケール不変になる条件はあるか（\(p\) と次元への依存）。
+→ <b>C6, C18 で調査</b>：独立なモードの素朴な ES なら \(p=5/3\) で 3 次元スケール不変になるが、エージェントのネットワークではノイズが白色なので、どの \(p\) でもならない（C18）。</li>
+<li><b>最適な学習から \(\nu(T)\) が出るか。</b> 各エージェントがノイズのある隣人の情報から自分の時計をベイズ最適（C12）に合わせるとき、全体の \(\nu(T)\) は自動的に \(p=1\)（等速膨張）になるか。そこに「質量」を持つエージェントを混ぜると \(p\) は 0.8（物質優勢）側へずれるか。規則を恣意的にせずに定義する方法がまだない。</li>
+<li><b>大域ティックの観測上の上限。</b> → <b>C20/C20b で実施</b>：DESI DR2 BAO + Planck 距離プライア（\(R,\ell_A,\omega_b\)）で \(\Omega_E=-0.020\pm0.010\)（0 は 95% 区間の端）。次は超新星を加えて、BAO と CMB の張力との分離を試す。</li>
+</ul>
+
+<h2>参考文献（記憶に基づく、要確認）</h2>
+<ol class="refs">
+<li>Planck Collaboration, “Planck 2018 results. VI. Cosmological parameters,” A&amp;A 641 (2020).</li>
+<li>F. Melia, A. S. H. Shevchuk, “The \(R_h=ct\) universe,” MNRAS 419 (2012).</li>
+<li>P. E. Avelino, R. P. Kirshner, “The dimensionless age of the Universe: a riddle for our time,” ApJ 828 (2016).</li>
+<li>E. A. Milne, “Relativity, Gravitation and World-Structure,” 1935.</li>
+<li>C. Wetterich, “A Universe without expansion,” Phys. Dark Univ. 2 (2013).</li>
+<li>M. Henneaux, C. Teitelboim, “The cosmological constant and general covariance,” Phys. Lett. B 222 (1989); W. G. Unruh, “Unimodular theory of canonical quantum gravity,” Phys. Rev. D 40 (1989).</li>
+<li>J. D. Brown, K. V. Kuchař, “Dust as a standard of space and time in canonical quantum gravity,” Phys. Rev. D 51 (1995).</li>
+<li>R. D. Sorkin (1990s); M. Ahmed, S. Dodelson, P. B. Greene, R. Sorkin, “Everpresent Λ,” Phys. Rev. D 69 (2004).</li>
+<li>A. H. Chamseddine, V. Mukhanov, “Mimetic dark matter,” JHEP 11 (2013).</li>
+<li>B. Hajek, “Cooling schedules for optimal annealing,” Math. Oper. Res. 13 (1988).</li>
+<li>P. D. Hislop, R. Longo, “Modular structure of the local algebras associated with the free massless scalar field theory,” Commun. Math. Phys. 84 (1982).</li>
+<li>P. Martinetti, C. Rovelli, “Diamond's temperature,” Class. Quantum Grav. 20 (2003); S. J. Olson, T. C. Ralph, Phys. Rev. Lett. 106 (2011).</li>
+<li>F. Hofmann, J. Müller, “Relativistic tests with lunar laser ranging,” Class. Quantum Grav. 35 (2018).</li>
+<li>A. Nemirovski, A. Juditsky, G. Lan, A. Shapiro, “Robust stochastic approximation approach to stochastic programming,” SIAM J. Optim. 19 (2009).</li>
+<li>F. Hoyle, J. V. Narlikar, “A new theory of gravitation,” Proc. R. Soc. A 282 (1964).</li>
+<li>P. A. M. Dirac, “The cosmological constants,” Nature 139 (1937) — 巨大数仮説.</li>
+<li>H. Robbins, S. Monro, “A Stochastic Approximation Method,” Ann. Math. Stat. 22 (1951).</li>
+<li>B. T. Polyak, A. B. Juditsky, “Acceleration of stochastic approximation by averaging,” SIAM J. Control Optim. 30 (1992).</li>
+</ol>
+<p class="sub">文献情報は記憶に基づくもので、書誌事項は未確認。引用前に要確認。</p>
+
+</main>
+</body>
+</html>

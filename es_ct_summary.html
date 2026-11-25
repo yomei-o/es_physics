@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>c·t 一定のまとめ</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<style>
+:root{--fg:#1d1d1f;--muted:#5f6368;--bg:#ffffff;--line:#d9dce1;--accent:#2b5fa8;--ok:#1e7a3c;--ng:#b3261e;--warn:#8a5a00;--box:#f5f7fa}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fg:#e6e6e6;--muted:#a0a4aa;--bg:#16181c;--line:#3a3f47;--accent:#7aa7e8;--ok:#6cc58a;--ng:#f08a82;--warn:#e0b35a;--box:#20242b}}
+:root[data-theme="dark"]{--fg:#e6e6e6;--muted:#a0a4aa;--bg:#16181c;--line:#3a3f47;--accent:#7aa7e8;--ok:#6cc58a;--ng:#f08a82;--warn:#e0b35a;--box:#20242b}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.85;font-size:16px}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 16px 4rem}
+a{color:var(--accent)}
+h1{font-size:1.6rem;line-height:1.4;margin:0 0 .3rem}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:2rem}
+h2{font-size:1.2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-top:2.6rem}
+h3{font-size:1.02rem;margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;font-family:"Hiragino Sans","Yu Gothic",sans-serif;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:.35rem .55rem;text-align:left;vertical-align:top}
+th{background:var(--box)}
+.box{background:var(--box);border-left:3px solid var(--accent);padding:.7rem 1rem;margin:1.2rem 0}
+.warn{border-left-color:var(--warn)}
+.ok{color:var(--ok);font-weight:bold}.ng{color:var(--ng);font-weight:bold}.mid{color:var(--warn);font-weight:bold}
+code{font-family:Consolas,"Courier New",monospace;font-size:.85em;background:var(--box);padding:0 .25em}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+@media print{body{font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}table,.box,.katex-display{break-inside:avoid}a{color:inherit;text-decoration:none}}
+@page{size:A4;margin:18mm 16mm}
+</style>
+</head>
+<body>
+<main>
+
+<h1>\(c\cdot t=\text{const}\) の座標系で見えたもの ― ここまでのまとめ</h1>
+<div class="sub">2026-11-24〜25 の作業の要約 ・ 大谷 + Claude ・ 詳細と計算は <a href="es_ct_notes.html"><code>es_ct_notes.html</code></a>（C0〜C23）、スクリプトは <code>scripts/c1〜c25</code></div>
+
+<div class="box">
+<b>3 行で。</b>
+(1) \(c\,t=\text{const}\) は単位の選び方としてはいつでも作れ、それだけでは物理を何も言わない。物差しを銀河（共動座標）やネットワークのサイトに結びつけたときだけ、無次元量 \(ct/D\) が一定という<b>検証できる主張</b>になる。<br>
+(2) この座標系で見ると「\(p=1\)」（\(1/t\) で減るステップ幅、等速膨張）が、確率近似・ベイズ推定・自然選択・焼きなまし・真空の温度など、別々の分野で<b>同じ境目</b>として何度も現れる。理由は \(\sum t^{-p}\) の対数発散で、対数時間 \(s=\ln t\) で見ると定常になる点。<br>
+(3) 既知と異なる観測可能な予測は<span class="ng">ない</span>。新しい物理ではなく、既知の結果を 1 本の軸に並べ直す見方として役に立つ。
+</div>
+
+<h2>1. 規約か、主張か</h2>
+<p>Gemini との対話の「導出」\(c\,t=N\Delta x\) は、恒等式に「\(N\Delta x\) が一定」という仮定を足しただけだった（§0）。時計と物差しの付け替えには関数 1 個分の自由度があり、\(c\,t\) はいつでも一定にできる（C0）。座標変換だけなら観測量は変わらないので、真でも偽でもない。</p>
+<p>物差しを銀河の間隔に結びつけると、\(c\,t/a\) が一定 ⇔ \(a\propto t\)（等速膨張）となり、観測で確かめられる。</p>
+<table>
+<tr><th>見方</th><th>結果</th></tr>
+<tr><td>宇宙の全歴史</td><td><span class="ng">合わない</span>（減速期と加速期がある）</td></tr>
+<tr><td>今の宇宙</td><td><span class="ok">ほぼ成り立つ</span>：\(ct/a\) は最大値の 0.2% 以内、\(H_0t_0=0.951\)。既知の「\(H_0t_0\approx1\) の偶然」の言い換え（C1）</td></tr>
+<tr><td>\(Ht=1\) になる時刻</td><td>宇宙年齢 15.05 Gyr（あと 1.26 Gyr）。\(\Omega_\Lambda=0.737\) と同値</td></tr>
+<tr><td>観測者として珍しいか</td><td>星形成率で重みをつけると私たちは 78 パーセンタイル。強い偶然ではない（C21）</td></tr>
+</table>
+
+<h2>2. ネットワークの時計が遅くなる ＝ 宇宙が膨張する</h2>
+<p>姉妹編 §8 の一致ルール（ホッピング \(J\propto\nu^2\)、質量 \(\propto\nu\)）を使うと、ネットワーク全体の時計 \(\nu(T)\) が一様に変わることは、宇宙膨張と区別できない（C2）。</p>
+$$a=\frac1\nu,\qquad d\tau=\nu\,dT,\qquad c_{\rm net}=\nu^2\propto T^{-p}\ \Longleftrightarrow\ a\propto\tau^{\,p/(2-p)}$$
+<ul>
+<li>フリードマン方程式をティックで書くと \(p=4/(5+3w)\)（C7）。Robbins–Monro の十分条件の範囲は \(-1/3\le w&lt;1\) に対応する。</li>
+<li>今の宇宙の局所指数は \(p_{\rm loc}=1.054\)。\(p=1\) を通ったのは約 1.8 Gyr 前（\(z=0.138\)）（C2 の訂正）。</li>
+<li>大域的なティックがあると、そのエネルギーは \(w=\beta/3\) の流体としてふるまい、ネットワークのティック（\(\beta=-1\)）は \(w=-1/3\)、つまり \(c\,t=\text{const}\) 成分になる（C9）。</li>
+<li>この辞書が成り立つのは断熱的なとき（\(H\ll mc^2/\hbar\)）だけで、急に変えると粒子が生まれる（第 5 節）。</li>
+</ul>
+
+<h2>3. \(p=1\) はなぜ何度も出るか</h2>
+<table>
+<tr><th>分野</th><th>\(p=1\)（\(c\,t=\text{const}\)）の意味</th><th>節</th></tr>
+<tr><td>ES / 確率近似</td><td>到達距離が対数発散する境目。ベイズ最適（カルマンゲイン \(1/t\)）は \(p=1\)、AdaGrad は 1/2、1/5 成功則は凍結</td><td>C3, C12</td></tr>
+<tr><td>自然選択</td><td>選択だけならベイズ更新そのもので \(p=1\)。突然変異は \(p=0\)、浮動は凍結</td><td>C13</td></tr>
+<tr><td>焼きなまし</td><td>Hajek の対数冷却定理 ＝ 抜け出す率のスケジュールで \(p\le1\)</td><td>C15</td></tr>
+<tr><td>真空の温度</td><td>\(c\,t=\text{const}\) の時計では真空が \(T=\hbar/(2\pi k t)\) を持つ（既知の Hislop–Longo）。de Sitter の温度と一致する条件が \(Ht=1\)</td><td>C14</td></tr>
+<tr><td>最適な学習と時計</td><td>1 ティックあたりの実効学習率で見ればどの規則でも \(p=1\)</td><td>C19</td></tr>
+<tr><td>共通の理由</td><td>\(\sum t^{-p}\) が \(p=1\) で対数発散。\(s=\ln t\) で見ると定常</td><td>C16</td></tr>
+</table>
+<p class="mid">解釈</p>
+<p>「宇宙は最適スケジュールをとる」という素朴な仮説は否定される。ΛCDM は \(p=1\) を通り過ぎて \(p\to2\)（宇宙定数）へ向かうからである。今がちょうど通過点付近にいることに意味があるかは、まだ開いた問題として残っている。</p>
+
+<h2>4. 観測との突き合わせ</h2>
+<table>
+<tr><th>対象</th><th>データ</th><th>結果</th></tr>
+<tr><td>Dirac の巨大数仮説（\(G\propto1/t\)）</td><td>月レーザー測距</td><td><span class="ng">約 950σ で否定</span>。座標系の付け替えでは救えない（C8）</td></tr>
+<tr><td rowspan="3">大域ティックの流体（平坦、\(w=-1/3\)）</td><td>DESI DR2 BAO + Planck \(R\)</td><td>\(\Omega_E=-0.016\pm0.011\)（C20）</td></tr>
+<tr><td>+ Planck 距離プライア全部</td><td>\(\Omega_E=-0.020\pm0.010\)（1.9σ）。曲率で同じ計算をすると \(\Omega_k=0.0027\pm0.0012\) で DESI の 0.0023±0.0011 と一致（C20b）</td></tr>
+<tr><td>+ Pantheon+ 超新星 1590 個</td><td><span class="ok">\(\Omega_E=-0.010\pm0.010\)、0 と整合（0.97σ）</span>。上の偏りは BAO と CMB の \(\Omega_m\) の食い違いを吸っていただけ（C23）</td></tr>
+</table>
+
+<h2>5. ネットワークでの粒子生成</h2>
+<p>SSH 型の 2 バンド鎖で \(J=\nu^2\)、\(m=m_0/\nu\) として時計を \(c_{\rm net}T=\text{const}\) で変え、上のバンドに出る割合 \(|\beta|^2\) を測った（C22）。断熱パラメータは \(\varepsilon=H/m\)。</p>
+<table>
+<tr><th>開始の仕方</th><th>\(|\beta|^2\)</th></tr>
+<tr><td>静止した粒子（\(k=\pi\)）</td><td>厳密に 0</td></tr>
+<tr><td>急に開始</td><td>\(\propto\varepsilon^2\)（傾き 1.99）</td></tr>
+<tr><td>滑らかに開始</td><td>\(8\times10^{-10}\)、\(5\times10^{-11}\)（指数的に小さい）</td></tr>
+</table>
+<p>連続体の宇宙論の粒子生成と同じ形になり、ゆっくりなら辞書が成り立つことの確認になる。ただし、急に開始した場合は終端で \(m=0.22\)〜\(0.44\) となり、連続体の条件 \(m\ll1\) を満たしていない（積み残し）。</p>
+
+<h2>6. 外れた予測と訂正の記録</h2>
+<p>各節は計算の前に予測を書き、外れたものも消さずに残している。別エージェントによる独立レビューを 3 回行った。</p>
+<table>
+<tr><th>回</th><th>主な指摘</th></tr>
+<tr><td>1 回目</td><td>「今の宇宙は \(p=0.975\)」は誤り → \(p_{\rm loc}=1.054\)。C10 の「どの数え方でも \(O(1)\)」は規格化に依存するので撤回。ほかに Milne と平坦等速膨張の区別、RM 条件は十分条件にすぎないこと、文献の追加など 10 項目</td></tr>
+<tr><td>2 回目</td><td>C19 の \(p=1/2\) は「ゲイン＝\(c_{\rm net}\)」と置いたことによる見かけ → 1 ティックあたりでは \(p=1\)。C20b の格子が粗い → Nelder–Mead のプロファイルで 2.1σ を 1.9σ に訂正</td></tr>
+<tr><td>3 回目</td><td>C22 の「滑らかな開始で約 \(5\times10^{-8}\)」は、時計が変化中のまま射影したための見かけ → 時計を止めてから射影し直し、2〜3 桁小さい値に訂正</td></tr>
+<tr><td>自分で見つけた訂正</td><td>C6 の「\(p=5/3\) でスケール不変」はネットワークでは成り立たない（ノイズが白色、C18）。C3 のノイズの大小関係は乱数の種 5 個では安定しない</td></tr>
+</table>
+
+<h2>7. まだわかっていないこと・次の候補</h2>
+<ul>
+<li><span class="ng">未解決</span>：なぜ今 \(H_0t_0\approx1\)、\(p_{\rm loc}\approx1\) 付近にいるのか（偶然問題）。</li>
+<li>\(\nu(T)\) の力学を、一般相対論の書き直しではなくネットワークの規則から導けるか。</li>
+<li>粒子生成：急に開始する場合も \(m\ll1\) を保つ設定に直す。そのあと 2 次元・3 次元のネットワークでスペクトルを宇宙論の公式と比べる。</li>
+</ul>
+
+<p class="sub">データ：DESI DR2 BAO、Planck 2018 距離プライア、Pantheon+（超新星のデータはリポジトリに含めない）。文献情報は記憶に基づき未確認。数値は <code>scripts/</code> の各スクリプトで再現できる（Python 3 + numpy）。</p>
+
+</main>
+</body>
+</html>
